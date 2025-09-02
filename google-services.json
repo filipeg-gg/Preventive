@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "994636715090",
+    "project_id": "preventive-44efe",
+    "storage_bucket": "preventive-44efe.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994636715090:android:86e62abb207bae6a403b8b",
+        "android_client_info": {
+          "package_name": "com.preventive.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj0na2ILmhTefRbt8kREEz2SplEsbvpRo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
