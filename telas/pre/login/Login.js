@@ -5,33 +5,33 @@ import {
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Icon from "react-native-vector-icons/Feather";
+import { loginUser } from '../../../UserStore';
+
 
 const { width, height } = Dimensions.get('window');
 
 export default function Login({ navigation, route }) {
   const [usuarioDigitado, setUsuarioDigitado] = useState('');
   const [senhaDigitada, setSenhaDigitada] = useState('');
-  const [usuarioCadastrado, setUsuarioCadastrado] = useState('');
-  const [senhaCadastrada, setSenhaCadastrada] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  useEffect(() => {
-    if (route.params?.usuarioCadastrado && route.params?.senhaCadastrada) {
-      setUsuarioCadastrado(route.params.usuarioCadastrado);
-      setSenhaCadastrada(route.params.senhaCadastrada);
-    }
-  }, [route.params]);
 
   const handleLogin = () => {
     if (
-      (usuarioDigitado === usuarioCadastrado && senhaDigitada === senhaCadastrada) ||
-      (usuarioDigitado === 'filipe' && senhaDigitada === '1234')
+      (usuarioDigitado === 'adm' && senhaDigitada === '1234')
     ) {
       navigation.navigate("Principal");
+      return
+    } 
+
+    const sucesso = loginUser(usuarioDigitado, senhaDigitada);
+    if (sucesso) {
+      navigation.navigate("Principal");
     } else {
-      alert('Usuário ou senha incorretos.');
+      alert("Usuário ou senha inválidos.");
     }
   };
+
 
   return (
     <View style={styles.container}>

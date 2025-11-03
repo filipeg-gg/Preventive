@@ -8,8 +8,7 @@ import {
   Dimensions,
   Alert,
 } from "react-native";
-//import auth from "@react-native-firebase/auth";
-//import firestore from "@react-native-firebase/firestore";
+import { registerUser } from "../../../UserStore";  
 
 const { width, height } = Dimensions.get("window");
 
@@ -22,44 +21,32 @@ export default function Cadastro({ navigation }) {
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  const handleCadastro = async () => {
+  const handleCadastro = () => {
     if (senha !== confirmarSenha) {
       Alert.alert("Atenção", "As senhas não coincidem.");
       return;
     }
-    if (!usuario || !sobrenome || !email || !dataNascimento || !senha || !sexo) {
+    if (!usuario || !email || !dataNascimento || !senha) {
       Alert.alert("Atenção", "Preencha todos os campos obrigatórios.");
       return;
     }
 
-    try {
-      const userCredential = await auth().createUserWithEmailAndPassword(
-        email,
-        senha
-      );
-      const uid = userCredential.user.uid;
+    const sucesso = registerUser({
+      usuario,
+      sobrenome,
+      sexo,
+      dataNascimento,
+      email,
+      password: senha, // cuidado aqui: no UserStore você usa "password" e não "senha"
+    });
 
-      await firestore().collection("users").doc(uid).set({
-        email,
-        nome: usuario,
-        sobrenome,
-        dataNascimento,
-        sexo,
-      });
-
-      Alert.alert("Sucesso!", "Conta criada com sucesso!");
-      navigation.navigate("Login");
-    } catch (error) {
-      if (error.code === "auth/email-already-in-use") {
-        Alert.alert("Erro", "Este e-mail já está em uso.");
-      } else if (error.code === "auth/invalid-email") {
-        Alert.alert("Erro", "O formato do e-mail é inválido.");
-      } else if (error.code === "auth/weak-password") {
-        Alert.alert("Erro", "A senha é muito fraca. Use pelo menos 6 caracteres.");
-      } else {
-        Alert.alert("Erro", "Ocorreu um erro inesperado ao criar a conta.");
-      }
+    if (!sucesso) {
+      Alert.alert("Erro", "E-mail já cadastrado.");
+      return;
     }
+
+    Alert.alert("Sucesso!", "Conta criada com sucesso!");
+    navigation.navigate("Login");
   };
 
   return (
@@ -69,7 +56,7 @@ export default function Cadastro({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Nome"
+          placeholder="Nome*"
           placeholderTextColor="#B0B0B0"
           value={usuario}
           onChangeText={setUsuario}
@@ -115,14 +102,14 @@ export default function Cadastro({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Data de nascimento (DD/MM/AAAA)"
+          placeholder="Data de nascimento (DD/MM/AAAA)*"
           placeholderTextColor="#B0B0B0"
           value={dataNascimento}
           onChangeText={setDataNascimento}
         />
         <TextInput
           style={styles.input}
-          placeholder="E-mail"
+          placeholder="E-mail*"
           placeholderTextColor="#B0B0B0"
           autoCapitalize="none"
           keyboardType="email-address"
@@ -131,7 +118,7 @@ export default function Cadastro({ navigation }) {
         />
         <TextInput
           style={styles.input}
-          placeholder="Senha"
+          placeholder="Senha*"
           placeholderTextColor="#B0B0B0"
           secureTextEntry
           value={senha}
@@ -139,7 +126,7 @@ export default function Cadastro({ navigation }) {
         />
         <TextInput
           style={styles.input}
-          placeholder="Confirmar senha"
+          placeholder="Confirmar senha*"
           placeholderTextColor="#B0B0B0"
           secureTextEntry
           value={confirmarSenha}
@@ -171,111 +158,23 @@ export default function Cadastro({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#F9FAFB",
-  },
-  formu: {
-    backgroundColor: "#F9FAFB",
-    alignItems: "center",
-    paddingTop: 40,
-    marginTop: height * 0.12,
-  },
-  titulo: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "#77a5ff",
-    marginBottom: 15,
-  },
-  input: {
-    width: "85%",
-    height: 45,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    marginVertical: 6,
-    borderColor: "#E5E7EB",
-    borderWidth: 1,
-    fontSize: 14,
-    color: "#333",
-  },
-  sexoContainer: {
-    width: "85%",
-    marginVertical: 6,
-  },
-  sexoLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    marginBottom: 5,
-    color: "#333",
-  },
-  radioRow: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  radioOption: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginRight: 20,
-  },
-  radioCircle: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: "#77a5ff",
-    marginRight: 6,
-  },
-  radioSelecionado: {
-    backgroundColor: "#77a5ff",
-  },
-  radioText: {
-    fontSize: 14,
-    color: "#333",
-  },
-  botao: {
-    width: "85%",
-    paddingVertical: 12,
-    borderRadius: 20,
-    backgroundColor: "#77a5ff",
-    alignItems: "center",
-    marginTop: 20,
-  },
-  botaoTexto: {
-    fontSize: 16,
-    color: "#fff",
-    fontWeight: "600",
-  },
-  divider: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "85%",
-    marginTop: height * 0.03,
-  },
-  line: {
-    flex: 1,
-    height: 1,
-    backgroundColor: "#d3d3d3",
-  },
-  dividerText: {
-    marginHorizontal: 10,
-    color: "#a9a9a9",
-    fontSize: width * 0.035,
-    fontWeight: "500",
-  },
-  textRow: {
-    flexDirection: "row",
-    marginTop: height * 0.02,
-  },
-  normalText: {
-    fontSize: width * 0.035,
-    color: "#a9a9a9",
-    fontWeight: "bold",
-  },
-  linkText: {
-    fontSize: width * 0.035,
-    color: "#77a5ff",
-    fontWeight: "bold",
-    textDecorationLine: "underline",
-  },
+  container: { flex: 1, backgroundColor: "#F9FAFB" },
+  formu: { backgroundColor: "#F9FAFB", alignItems: "center", paddingTop: 40, marginTop: height * 0.12 },
+  titulo: { fontSize: 20, fontWeight: "bold", color: "#77a5ff", marginBottom: 15 },
+  input: { width: "85%", height: 45, backgroundColor: "#fff", borderRadius: 12, paddingHorizontal: 12, marginVertical: 6, borderColor: "#E5E7EB", borderWidth: 1, fontSize: 14, color: "#333" },
+  sexoContainer: { width: "85%", marginVertical: 6 },
+  sexoLabel: { fontSize: 14, fontWeight: "500", marginBottom: 5, color: "#333" },
+  radioRow: { flexDirection: "row", alignItems: "center" },
+  radioOption: { flexDirection: "row", alignItems: "center", marginRight: 20 },
+  radioCircle: { width: 18, height: 18, borderRadius: 9, borderWidth: 2, borderColor: "#77a5ff", marginRight: 6 },
+  radioSelecionado: { backgroundColor: "#77a5ff" },
+  radioText: { fontSize: 14, color: "#333" },
+  botao: { width: "85%", paddingVertical: 12, borderRadius: 20, backgroundColor: "#77a5ff", alignItems: "center", marginTop: 20 },
+  botaoTexto: { fontSize: 16, color: "#fff", fontWeight: "600" },
+  divider: { flexDirection: "row", alignItems: "center", width: "85%", marginTop: height * 0.03 },
+  line: { flex: 1, height: 1, backgroundColor: "#d3d3d3" },
+  dividerText: { marginHorizontal: 10, color: "#a9a9a9", fontSize: width * 0.035, fontWeight: "500" },
+  textRow: { flexDirection: "row", marginTop: height * 0.02 },
+  normalText: { fontSize: width * 0.035, color: "#a9a9a9", fontWeight: "bold" },
+  linkText: { fontSize: width * 0.035, color: "#77a5ff", fontWeight: "bold", textDecorationLine: "underline" },
 });

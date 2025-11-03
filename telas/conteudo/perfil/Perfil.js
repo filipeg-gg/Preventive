@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   View, Text, StyleSheet, TouchableOpacity, 
   Image, Alert 
@@ -6,11 +6,29 @@ import {
 import * as ImagePicker from "expo-image-picker";
 import { Ionicons, MaterialIcons, Feather } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/Feather";
+import { getCurrentUser } from "../../../UserStore";
+
 
 export default function Perfil({ navigation }) {
-  const [image, setImage] = useState(null);
 
-  // Selecionar imagem do dispositivo (teste)
+  const [image, setImage] = useState(null);
+  const [user, setUser] = useState({usuario: "", sobrenome: ""});
+    useEffect(() => {
+    // Função para buscar os dados do usuário
+    const loadUser = async () => {
+      try {
+        const currentUser = await getCurrentUser(); // busca do "banco"
+        if (currentUser) {
+          setUser(currentUser); // salva no estado
+        }
+      } catch (error) {
+        console.log("Erro ao carregar usuário:", error);
+      }
+    };
+
+    loadUser();
+  }, []);
+  // Função para selecionar imagem da galeria
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
@@ -52,7 +70,9 @@ export default function Perfil({ navigation }) {
             <Ionicons name="create-outline" size={18} color="#FF617B" />
           </View>
         </TouchableOpacity>
-        <Text style={styles.profileName}>Marcela Soares</Text>
+        <Text style={styles.profileName}>
+          {user.usuario} {user.sobrenome}
+        </Text>
       </View>
 
       {/* Lista de opções */}

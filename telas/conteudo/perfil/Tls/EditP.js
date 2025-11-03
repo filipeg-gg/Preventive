@@ -1,13 +1,33 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, TextInput } from "react-native";
+import { getCurrentUser } from "../../../../UserStore";
+
 
 export default function EditP({ navigation }) {
-  const [nome, setNome] = useState("Marcela");
-  const [sobrenome, setSobrenome] = useState("Soares");
-  const [sexo, setSexo] = useState("Feminino");
-  const [nascimento, setNascimento] = useState("05/09/2001");
-  const [email, setEmail] = useState("MarcelaSoares@gmail.com");
-  const [senha, setSenha] = useState("********");
+  const [usuario, setNome] = useState("");
+  const [sobrenome, setSobrenome] = useState("");
+  const [sexo, setSexo] = useState("");
+  const [nascimento, setNascimento] = useState("");
+  const [email, setEmail] = useState("");
+  const [senha, setSenha] = useState("");
+
+  useEffect(() => {
+    const carregarDados = async () => {
+      const user = await getCurrentUser();
+
+      if (user) {
+        setNome(user.usuario || "");
+        setSobrenome(user.sobrenome || "");
+        setSexo(user.sexo || "");
+        setNascimento(user.dataNascimento || "");
+        setEmail(user.email || "");
+        setSenha(user.password ? "********" : ""); // só exibe máscara
+      }
+    };
+
+    carregarDados();
+  }, []);
+
 
   return (
     <View style={styles.container}>
@@ -28,7 +48,7 @@ export default function EditP({ navigation }) {
           <Text style={styles.label}>Nome</Text>
           <TextInput
             style={styles.input}
-            value={nome}
+            value={usuario}
             onChangeText={setNome}
           />
         </View>

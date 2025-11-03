@@ -15,10 +15,45 @@ import {
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
 import { Linking } from "react-native";
+import { getCurrentUser } from "../../../UserStore";
+import { getEvents } from "./EventStore";
+
 
 export default function Principal() {
+
+  const [nomeUsuario, setNomeUsuario] = useState("");
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (user && user.usuario) {
+      setNomeUsuario(user.usuario);
+    }
+  }, []);
+
   const navigation = useNavigation();
   const hoje = new Date();
+
+  // ======== Eventos ========
+ 
+  const [eventos, setEventos] = useState([]);
+    useEffect(() => {
+    // Função que busca os eventos salvos em memória
+    const carregar = () => {
+      const data = getEvents();
+
+      // converte a data de texto (dd/mm/aaaa) para objeto Date
+      const formatados = data.map(ev => ({
+        ...ev,
+        date: new Date(ev.data.split("/").reverse().join("-")),
+      }));
+
+      setEventos(formatados);
+    };
+
+    // Carrega ao abrir e toda vez que voltar pra essa tela
+    const unsubscribe = navigation.addListener("focus", carregar);
+    return unsubscribe;
+  }, [navigation]);
 
   // ======== Drawer lateral ========
   const [drawerVisible, setDrawerVisible] = useState(false);
@@ -66,36 +101,7 @@ export default function Principal() {
     month: "long",
   });
 
-  // ======== Eventos ========
-  const [eventos] = useState([
-    {
-      id: 1,
-      title: "Exame - mamografia",
-      date: new Date(2025, mesAtual, 20),
-      color: "#f472b6",
-      screen: "Evento1",
-      local:
-        "Você agendou uma mamografia pra o dia 7 de Maio de 2025, às 9h00. O local onde você fará o exame é Avenida Silvano Silva, nº 95, São Paulo, SP.",
-    },
-    {
-      id: 2,
-      title: "Resultado - mamografia",
-      date: new Date(2025, mesAtual, 23),
-      color: "#60a5fa",
-      screen: "Evento2",
-      local:
-        "Você agendou o resultado da mamografia pra o dia 21 de Maio de 2025, às 11h00. O local onde você fará o exame é Avenida Silvano Silva, nº 95, São Paulo, SP.",
-    },
-    {
-      id: 3,
-      title: "Consulta",
-      date: new Date(2025, mesAtual, 28),
-      color: "#fb923c",
-      screen: "Evento3",
-      local:
-        "Você agendou uma consulta pra o dia 29 de Maio de 2025, às 15h00. O local onde você fará o exame é Avenida Silvano Silva, nº 95, São Paulo, SP.",
-    },
-  ]);
+
 
   const proximosEventos = eventos.filter((ev) => ev.date >= hoje);
 
@@ -327,7 +333,7 @@ export default function Principal() {
                 <Icon name="user" size={24} color="#6b7280" />
               </TouchableOpacity>
 
-              <Text style={styles.headerText}>Olá, Marcela</Text>
+              <Text style={styles.headerText}>Olá, {nomeUsuario} </Text>
 
               <TouchableOpacity
                 style={styles.iconButton}

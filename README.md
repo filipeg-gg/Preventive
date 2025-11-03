@@ -7,4 +7,4 @@ Integrantes:
 -Henrique Avila Ferreira
 -João Pedro Campos Silva Nakazoni
 
-- Link Figma: https://www.figma.com/design/OwLXrrZKOtoyPd6SNI6uz9/Preventive?t=kKWL7zBZR6BCqXJ0-0
+- Link Figma: https://wwww.figma.com/design/OwLXrrZKOtoyPd6SNI6uz9/Preventive?t=kKWL7zBZR6BCqXJ0-0
