@@ -11,15 +11,19 @@ import {
   Platform,
   SafeAreaView,
   Animated,
+  Image,
+  TextInput,
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
-import { Linking } from "react-native";
 import { getCurrentUser } from "../../../UserStore";
 import { getEvents } from "./EventStore";
 
 
 export default function Principal() {
+
+
+
 
   const [nomeUsuario, setNomeUsuario] = useState("");
 
@@ -55,27 +59,6 @@ export default function Principal() {
     return unsubscribe;
   }, [navigation]);
 
-  // ======== Drawer lateral ========
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const slideAnim = useRef(new Animated.Value(Dimensions.get("window").width)).current;
-
-  useEffect(() => {
-    if (drawerVisible) {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    } else {
-      Animated.timing(slideAnim, {
-        toValue: Dimensions.get("window").width,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    }
-  }, [drawerVisible]);
-
-
 
   // ======== Responsividade ========
   const { width, height } = Dimensions.get("window");
@@ -101,41 +84,61 @@ export default function Principal() {
     month: "long",
   });
 
+  // hospitais
 
+  const [pesquisa, setPesquisa] = useState("");
+
+const postos = [
+  {
+    id: 1,
+    nome: "UBS Central",
+    endereco: "Av. Principal, 1200 - Centro",
+    imagem: "https://i.imgur.com/9Q9qFzq.png",
+    tags: ["Público", "7h às 19h"]
+  },
+  {
+    id: 2,
+    nome: "Hospital São Lucas",
+    endereco: "Rua das Flores, 300 - Vila Nova",
+    imagem: "https://i.imgur.com/0DElr0H.png",
+    tags: ["Particular", "24h"]
+  },
+  {
+    id: 3,
+    nome: "Posto Jardim Azul",
+    endereco: "Rua Azul, 85 - Jardim Azul",
+    imagem: "https://i.imgur.com/fLkYFZ8.png",
+    tags: ["Público", "Vacinação"]
+  }
+];
+
+
+  const postosFiltrados = postos.filter(posto =>
+    posto.nome.toLowerCase().includes(pesquisa.toLowerCase())
+  );
+
+
+
+
+  const [abaAtiva, setAbaAtiva] = useState("hoje");
 
   const proximosEventos = eventos.filter((ev) => ev.date >= hoje);
 
-  // ======== Artigos ========
-  const artigos = [
-    {
-      id: 1,
-      title: "Conheça os exames preventivos",
-      desc: "Saiba quais são importantes para sua saúde",
-      color: "#3b82f6",
-      link: "https://www.exmed.com.br/blog/saude/exame-preventivo-de-rotina/",
-    },
-    {
-      id: 2,
-      title: "(Ainda não disponível!)",
-      desc: "conheça a Nutr.ia",
-      color: "#10b981",
-      link: "https://www.instagram.com/nutr.ia__/",
-    },
-    {
-      id: 3,
-      title: "(Ainda não disponível!)",
-      desc: "Conheça a Etec de Taboão da Serra",
-      color: "#f59e0b",
-      link: "https://www.instagram.com/etecdetaboaodaserra/",
-    },
-    {
-      id: 4,
-      title: "(Ainda não disponível!)",
-      desc: "secreto",
-      color: "#ef4444",
-      link: "https://www.instagram.com/filipeg_gg/",
-    },
-  ];
+  const eventosFiltrados = useMemo(() => {
+    if (abaAtiva === "hoje") {
+      return eventos.filter(ev =>
+        ev.date.getDate() === hoje.getDate() &&
+        ev.date.getMonth() === hoje.getMonth() &&
+        ev.date.getFullYear() === hoje.getFullYear()
+      );
+    }
+
+    if (abaAtiva === "proximos") {
+      return eventos.filter(ev => ev.date > hoje);
+    }
+
+    return eventos; // aba "todos"
+  }, [abaAtiva, eventos]);
 
   // ======== Navegação entre meses ========
   const handlePrevMonth = () => {
@@ -315,6 +318,7 @@ export default function Principal() {
         </>
       );
     }
+    
 
     return null;
   };
@@ -328,7 +332,6 @@ export default function Principal() {
               <TouchableOpacity
                 style={styles.avatar}
                 activeOpacity={0.8}
-                onPress={() => navigation.navigate("Perfil")}
               >
                 <Icon name="user" size={24} color="#6b7280" />
               </TouchableOpacity>
@@ -338,9 +341,9 @@ export default function Principal() {
               <TouchableOpacity
                 style={styles.iconButton}
                 activeOpacity={0.8}
-                onPress={() => setDrawerVisible(true)} 
+                onPress={() => navigation.navigate("Perfil")}
               >
-                <Icon name="more-vertical" size={24} color="#6b7280" />
+                <Icon name="settings" size={24} color="#6b7280" />
               </TouchableOpacity>
 
             </View>
@@ -422,56 +425,94 @@ export default function Principal() {
             </View>
           </View>
 
-          <View style={styles.cardArt}>
-            <Text style={styles.sectionTitle}>Próximos eventos</Text>
-            {proximosEventos.length === 0 && <Text style={{ color: "#6b7280" }}>Nenhum evento futuro</Text>}
-            {proximosEventos.map((event, index) => (
+        <View style={styles.sessaoEventos}>
+          <Text style={styles.subtitulo}>Próximos eventos</Text>
+
+            <View style={styles.eventos}>
+              <View style={styles.abas}>
+
               <TouchableOpacity
-                key={event.id}
-                onPress={() => handleProximoEventoPress(event)}
-                style={[
-                  styles.eventItem,
-                  index === proximosEventos.length - 1 && { borderBottomWidth: 0 },
-                ]}
-                activeOpacity={0.8}
+              style={[styles.aba, abaAtiva === "todos" && styles.abaAtiva]}
+              onPress={() => setAbaAtiva("todos")}
               >
-                <View style={styles.eventLeft}>
-                  <View style={[styles.eventDot, { backgroundColor: event.color }]} />
-                  <Text style={{ fontWeight: "600", color: "#111827" }}>{event.title}</Text>
-                </View>
-                <Text style={styles.eventDate}>{event.date.toLocaleDateString("pt-BR")}</Text>
+              <Text style={styles.textoAba}>Todos</Text>
               </TouchableOpacity>
-            ))}
-          </View>
 
-          <View style={styles.card}>
-            <Text style={styles.sectionTitle}>Em alta</Text>
+              <TouchableOpacity
+              style={[styles.aba, abaAtiva === "hoje" && styles.abaAtiva]}
+              onPress={() => setAbaAtiva("hoje")}
+              >
+              <Text style={styles.textoAba}>Hoje</Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.articleBig, { backgroundColor: artigos[0].color }]}
-              onPress={() => Linking.openURL(artigos[0].link)}
-              activeOpacity={0.85}
-            >
-              <Text style={styles.articleTitle}>{artigos[0].title}</Text>
-              <Text style={styles.articleDesc}>{artigos[0].desc}</Text>
-              <Text style={styles.link}>Ver mais</Text>
+
+              <TouchableOpacity
+              style={[styles.aba, abaAtiva === "proximos" && styles.abaAtiva]}
+              onPress={() => setAbaAtiva("proximos")}
+              >
+              <Text style={styles.textoAba}>Próximos</Text>
+              </TouchableOpacity>
+              </View>
+
+
+              <View style={styles.caixaEventos}>
+              <Text style={styles.textoEvento}>{eventosFiltrados.length === 0 ? (
+              <Text style={styles.textoEvento}>Nenhum evento encontrado</Text>
+              ) : (
+              eventosFiltrados.map((evento) => (
+              <Text key={evento.id} style={styles.textoEvento}>
+              {evento.titulo} - {evento.data.toLocaleDateString()}
+              </Text>
+              ))
+              )}</Text>
+              </View>
+            </View>
+        </View>
+
+        <TouchableOpacity style={styles.botaoConsulta} >
+          <Image
+            source={require('../../../assets/consulta.png')}
+            style={styles.imagemBotaoConsulta}
+            resizeMode="contain"
+          />
+        </TouchableOpacity>
+
+        <View style={styles.campoPesquisa}>
+          <Icon name="search" size={20} color="#666" style={styles.iconePesquisa} />
+          <TextInput
+            style={styles.inputPesquisa}
+            placeholder="Buscar posto ou hospital..."
+            value={pesquisa}
+            onChangeText={setPesquisa}
+          />
+        </View>
+
+
+        <View style={styles.listaPostos}>
+          {postosFiltrados.map(posto => (
+            <TouchableOpacity key={posto.id} style={styles.cardPosto}>
+
+              <Image
+                source={{ uri: posto.imagem }}
+                style={styles.imagemHospital}
+              />
+
+              <View style={styles.infoHospital}>
+                <Text style={styles.nomePosto}>{posto.nome}</Text>
+                <Text style={styles.enderecoPosto}>{posto.endereco}</Text>
+
+                <View style={styles.tags}>
+                  {posto.tags.map((tag, index) => (
+                    <Text key={index} style={styles.tag}>{tag}</Text>
+                  ))}
+                </View>
+              </View>
+
+              <Icon name="seta" size={24} color="#6C63FF" />
+
             </TouchableOpacity>
-
-            {artigos.slice(1).map((article) => (
-              <TouchableOpacity
-                key={article.id}
-                style={[styles.articleSmall, { borderLeftColor: article.color }]}
-                onPress={() => Linking.openURL(article.link)}
-                activeOpacity={0.85}
-              >
-                <View>
-                  <Text style={styles.articleSmallTitle}>{article.title}</Text>
-                  <Text style={styles.articleSmallDesc}>{article.desc}</Text>
-                </View>
-                <Text style={{ color: article.color, fontWeight: "700" }}>→</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          ))}
+        </View>
         </ScrollView>
       </ImageBackground>
 
@@ -480,14 +521,11 @@ export default function Principal() {
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Principal")}>
             <Icon name="home" size={25} color="#3b82f6" />
           </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Exames")}>
-            <Icon name="file-text" size={25} color="#6b7280" />
-          </TouchableOpacity>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Cuidados")}>
             <Icon name="heart" size={25} color="#6b7280" />
           </TouchableOpacity>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Perfil")}>
-            <Icon name="user" size={25} color="#6b7280" />
+            <Icon name="comment" size={25} color="#6b7280" />
           </TouchableOpacity> 
       </View>
 
@@ -497,43 +535,6 @@ export default function Principal() {
         </View>
       </Modal>
       
-      {/* Drawer lateral */}
-      <Modal
-        visible={drawerVisible}
-        transparent
-        animationType="none"
-        onRequestClose={() => setDrawerVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.drawerOverlay}
-          activeOpacity={1}
-          onPressOut={() => setDrawerVisible(false)}
-        >
-          <Animated.View
-            style={[
-              styles.drawerContent,
-              { transform: [{ translateX: slideAnim }] },
-            ]}
-          >
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Principal")}>
-              <Text style={styles.drawerText}>Principal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Exames")}>
-              <Text style={styles.drawerText}>Exames</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Cuidados")}>
-              <Text style={styles.drawerText}>Cuidados</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Perfil")}>
-              <Text style={styles.drawerText}>Perfil</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => alert("Inicial")}>
-              <Text style={styles.drawerText}>Sair</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-        </TouchableOpacity>
-      </Modal>
 
     </View>
   );
@@ -565,11 +566,11 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   iconButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    borderRadius: 50,
+    padding: 8,
     justifyContent: "center",
     alignItems: "center",
+    backgroundColor: "#e5e7eb",
   },
   drawerOverlay: {
     flex: 1,
@@ -670,7 +671,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderBottomWidth: 1,
     borderColor: "#e5e7eb",
-  },
+},
   eventLeft: { flexDirection: "row", alignItems: "center", gap: 8 },
   eventDot: { width: 16, height: 16, borderRadius: 8 },
   eventDate: { fontSize: 12, color: "#6b7280" },
@@ -760,6 +761,157 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
+  sessaoEventos: {
+    marginTop: 25,
+  },
+
+  subtitulo: {
+    color: "#1B0C45",
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 15,
+    marginLeft: 5,
+  },
+
+  eventos: {
+    borderRadius: 15,
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  abas: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginVertical: 15,
+    marginHorizontal: 20,
+  },
+
+  aba: {
+    paddingVertical: 5,
+    paddingHorizontal: 20,
+    borderRadius: 20,
+    backgroundColor: "#fff",
+    color: "#ffffffb2",
+    borderColor: "#ccc",
+    borderWidth: 1,
+
+  },
+
+  abaAtiva: {
+    backgroundColor: "#CADBFE",
+  },
+
+  textoAba: {
+    color: "#1B0C45",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+
+  caixaEventos: {
+    backgroundColor: "#fff",
+    padding: 15,
+    borderRadius: 10,
+    minHeight: 60,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderColor: "#ccc",
+    borderWidth: 1,
+  },
+
+  textoEvento: {
+    color: "#1B0C45",
+    marginBottom: 8,
+  },
+
+  botaoConsulta: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+
+  imagemBotaoConsulta: {
+    height: 120,
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    },
+
+  campoPesquisa: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#fff",
+  borderRadius: 12,
+  paddingHorizontal: 12,
+  paddingVertical: 10,
+  borderWidth: 1,
+  borderColor: "#ddd",
+  marginTop: 20
+},
+
+iconePesquisa: {
+  marginRight: 8
+},
+
+inputPesquisa: {
+  flex: 1,
+  fontSize: 15
+},
+
+cardPosto: {
+  flexDirection: "row",
+  alignItems: "center",
+  backgroundColor: "#F3F6FF",
+  padding: 12,
+  borderRadius: 14,
+  marginBottom: 12
+},
+
+imagemHospital: {
+  width: 60,
+  height: 60,
+  borderRadius: 10,
+  marginRight: 12
+},
+
+infoHospital: {
+  flex: 1
+},
+
+nomePosto: {
+  fontSize: 16,
+  fontWeight: "bold",
+  color: "#333"
+},
+
+enderecoPosto: {
+  fontSize: 13,
+  color: "#666",
+  marginTop: 2
+},
+
+tags: {
+  flexDirection: "row",
+  marginTop: 6
+},
+
+tag: {
+  backgroundColor: "#6C63FF",
+  color: "#fff",
+  fontSize: 11,
+  paddingHorizontal: 8,
+  paddingVertical: 3,
+  borderRadius: 8,
+  marginRight: 6
+},
+
+
   navbar: {
     flexDirection: "row",
     justifyContent: "space-around",
@@ -771,7 +923,7 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 5,
     borderRadius: 20,
-    marginHorizontal: 20,
+    marginHorizontal: 50,
     bottom: 40,
   },
   navItem: { alignItems: "center" },

@@ -1,5 +1,5 @@
 
-// Aqui é onde ficam os dados em memória
+// Banco de dados simulado
 let users = [];       // Lista de todos os usuários cadastrados
 let currentUser = {}; // Usuário logado
 
