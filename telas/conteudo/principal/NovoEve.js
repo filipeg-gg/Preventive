@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput, Alert, Platform } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Modal, ScrollView, TextInput, Alert, Platform, ActivityIndicator } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { useRoute } from "@react-navigation/native";
@@ -9,8 +9,8 @@ export default function NovoEve({ navigation }) {
   const route = useRoute();
   const [evento, setEvento] = useState(route.params?.tipo || null);
   const [visible, setVisible] = useState(!route.params?.tipo);
+  const [loading, setLoading] = useState(false);
 
-  // Campos
   const [titulo, setTitulo] = useState("");
   const [local, setLocal] = useState("");
   const [obs, setObs] = useState("");
@@ -19,7 +19,6 @@ export default function NovoEve({ navigation }) {
   const [mostrarDatePicker, setMostrarDatePicker] = useState(false);
   const [mostrarTimePicker, setMostrarTimePicker] = useState(false);  
 
-  // Formata a data no formato dd/mm/aaaa
   const formatarData = (d) => {
     const dia = String(d.getDate()).padStart(2, "0");
     const mes = String(d.getMonth() + 1).padStart(2, "0");
@@ -42,41 +41,39 @@ export default function NovoEve({ navigation }) {
     if (selectedTime) setHora(selectedTime);
   }
 
-  const salvarEvento = (tipo) => {
+  const salvarEvento = async (tipo) => {
     if (!titulo.trim()) {
       Alert.alert("Erro", "Preencha o título do evento!");
       return;
     }
 
-    const cores = {
-      Exame: "#ffe4f0",
-      Consulta: "#e0f7fa",
-      Resultado: "#f9f9fb",
+    setLoading(true);
+
+    const dotColors = {
+      Exame: "#f472b6",
+      Resultado: "#60a5fa",
+      Consulta: "#fb923c",
     };
 
     const novo = {
-      id: Date.now().toString(),
       tipo,
       titulo: titulo.trim(),
       local: local.trim(),
       data: formatarData(data),
       hora: formatarHora(hora),
       obs: obs.trim(),
-      cor: cores[tipo] || "#ddd",
+      color: dotColors[tipo] || "#3b82f6", 
     };
 
     try {
-      EventStore.addEvent(novo);
+      await EventStore.addEvent(novo);
       Alert.alert("Sucesso", `${tipo} salvo com sucesso!`);
-      setTitulo("");
-      setLocal("");
-      setObs("");
-      setData(new Date());
-      setHora(new Date());
       navigation.navigate("Principal");
     } catch (err) {
       console.error("Erro ao salvar evento:", err);
       Alert.alert("Erro", "Não foi possível salvar o evento.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -198,10 +195,15 @@ export default function NovoEve({ navigation }) {
               <Text style={styles.textoCancelar}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={styles.botaoSalvar}
+              style={[styles.botaoSalvar, loading && { opacity: 0.7 }]}
               onPress={() => salvarEvento(evento)}
+              disabled={loading}
             >
-              <Text style={styles.textoSalvar}>Salvar</Text>
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={styles.textoSalvar}>Salvar</Text>
+              )}
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -237,88 +239,21 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9f9fb" },
   conteudo: { flex: 1 },
   tela: { flex: 1, paddingHorizontal: 20, paddingTop: 50 },
-
-  header: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    marginBottom: 20,
-  },
+  header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 20 },
   headerTitulo: { fontSize: 20, fontWeight: "700", color: "#333" },
-
-  infoBox: {
-    backgroundColor: "#fff",
-    padding: 15,
-    borderRadius: 12,
-    marginBottom: 20,
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#333",
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: "#fff",
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
-  },
+  infoBox: { backgroundColor: "#fff", padding: 15, borderRadius: 12, marginBottom: 20, shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 4, elevation: 2 },
+  label: { fontSize: 14, fontWeight: "600", color: "#333", marginBottom: 8 },
+  input: { backgroundColor: "#fff", borderWidth: 1, borderColor: "#ddd", borderRadius: 10, padding: 12, fontSize: 14 },
   inputText: { fontSize: 14, color: "#333" },
   row: { flexDirection: "row", alignItems: "center" },
-
-  footer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingVertical: 15,
-  },
-  botaoCancelar: {
-    flex: 1,
-    marginRight: 10,
-    paddingVertical: 14,
-    borderRadius: 10,
-    backgroundColor: "#111827",
-    alignItems: "center",
-  },
+  footer: { flexDirection: "row", justifyContent: "space-between", paddingVertical: 15 },
+  botaoCancelar: { flex: 1, marginRight: 10, paddingVertical: 14, borderRadius: 10, backgroundColor: "#111827", alignItems: "center" },
   textoCancelar: { color: "#fff", fontWeight: "600", fontSize: 15 },
-  botaoSalvar: {
-    flex: 1,
-    marginLeft: 10,
-    paddingVertical: 14,
-    borderRadius: 10,
-    backgroundColor: "#3b82f6",
-    alignItems: "center",
-  },
+  botaoSalvar: { flex: 1, marginLeft: 10, paddingVertical: 14, borderRadius: 10, backgroundColor: "#3b82f6", alignItems: "center" },
   textoSalvar: { color: "#fff", fontWeight: "600", fontSize: 15 },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.5)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  modalBox: {
-    backgroundColor: "#fff",
-    padding: 25,
-    borderRadius: 15,
-    width: "80%",
-    alignItems: "center",
-  },
+  modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.5)", alignItems: "center", justifyContent: "center" },
+  modalBox: { backgroundColor: "#fff", padding: 25, borderRadius: 15, width: "80%", alignItems: "center" },
   modalTitulo: { fontSize: 20, fontWeight: "bold", marginBottom: 15 },
-  botao: {
-    backgroundColor: "#3b82f6",
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-    marginVertical: 5,
-    width: "100%",
-    alignItems: "center",
-  },
+  botao: { backgroundColor: "#3b82f6", paddingVertical: 12, paddingHorizontal: 20, borderRadius: 10, marginVertical: 5, width: "100%", alignItems: "center" },
   botaoTexto: { color: "#fff", fontSize: 16, fontWeight: "bold" },
 });
