@@ -1,41 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   View, Text, TouchableOpacity, StyleSheet, 
-  Dimensions, Image, TextInput 
+  Dimensions, Image, TextInput, Alert, ActivityIndicator 
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import Icon from "react-native-vector-icons/Feather";
 import { loginUser } from '../../../UserStore';
 
-
 const { width, height } = Dimensions.get('window');
 
-export default function Login({ navigation, route }) {
+export default function Login({ navigation }) {
   const [usuarioDigitado, setUsuarioDigitado] = useState('');
   const [senhaDigitada, setSenhaDigitada] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-
-  const handleLogin = () => {
-    if (
-      (usuarioDigitado === 'adm' && senhaDigitada === '1234')
-    ) {
+  const handleLogin = async () => {
+    if (usuarioDigitado === 'adm' && senhaDigitada === '1234') {
       navigation.navigate("Principal");
-      return
+      return;
     } 
 
-    const sucesso = loginUser(usuarioDigitado, senhaDigitada);
-    if (sucesso) {
+    setLoading(true);
+
+    const resultado = await loginUser(usuarioDigitado, senhaDigitada);
+    
+    setLoading(false);
+
+    if (resultado.success) {
       navigation.navigate("Principal");
     } else {
-      alert("Usuário ou senha inválidos.");
+      Alert.alert("Erro", resultado.error);
     }
   };
 
-
   return (
     <View style={styles.container}>
-      {/* LOGO */}
       <View style={styles.topContainer}>
         <Image
           source={require('../../../assets/2.png')}
@@ -44,7 +44,6 @@ export default function Login({ navigation, route }) {
         />
       </View>
 
-      {/* PARTE DE BAIXO */}
       <View style={styles.bottomContainer}>
         <Svg
           width={width}
@@ -59,7 +58,6 @@ export default function Login({ navigation, route }) {
         </Svg>
 
         <View style={{ alignItems: 'center', width: '100%', marginTop: -height * 0.05 }}>
-          {/* EMAIL */}
           <TextInput
             style={styles.input}
             placeholder="Email"
@@ -70,7 +68,6 @@ export default function Login({ navigation, route }) {
             onChangeText={setUsuarioDigitado}
           />
 
-          {/* SENHA */}
           <View style={styles.passwordContainer}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
@@ -92,7 +89,6 @@ export default function Login({ navigation, route }) {
             </TouchableOpacity>
           </View>
 
-          {/* ESQUECEU A SENHA */}
           <View style={styles.textRow}>
             <Text style={styles.normalText}>Esqueceu a senha? </Text>
             <Text
@@ -103,12 +99,18 @@ export default function Login({ navigation, route }) {
             </Text>
           </View>
 
-          {/* BOTÃO ENTRAR */}
-          <TouchableOpacity style={styles.btLog} onPress={handleLogin}>
-            <Text style={styles.loginButtonText}>Entrar</Text>
+          <TouchableOpacity 
+            style={[styles.btLog, loading && { backgroundColor: '#ccc' }]} 
+            onPress={handleLogin}
+            disabled={loading}
+          >
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.loginButtonText}>Entrar</Text>
+            )}
           </TouchableOpacity>
 
-          {/* CADASTRO */}
           <View style={styles.textRow}>
             <Text style={styles.normalText}>Não tem conta? </Text>
             <Text
@@ -119,7 +121,6 @@ export default function Login({ navigation, route }) {
             </Text>
           </View>
 
-          {/* DIVISOR */}
           <View style={styles.divider}>
             <View style={styles.line} />
             <Text style={styles.dividerText}>ou</Text>

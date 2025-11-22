@@ -7,6 +7,7 @@ import {
   TextInput,
   Dimensions,
   Alert,
+  ActivityIndicator
 } from "react-native";
 import { registerUser } from "../../../UserStore";  
 
@@ -20,8 +21,9 @@ export default function Cadastro({ navigation }) {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleCadastro = () => {
+  const handleCadastro = async () => {
     if (senha !== confirmarSenha) {
       Alert.alert("Atenção", "As senhas não coincidem.");
       return;
@@ -31,22 +33,25 @@ export default function Cadastro({ navigation }) {
       return;
     }
 
-    const sucesso = registerUser({
+    setLoading(true);
+
+    const resultado = await registerUser({
       usuario,
       sobrenome,
       sexo,
       dataNascimento,
       email,
-      password: senha, // cuidado aqui: no UserStore você usa "password" e não "senha"
+      password: senha,
     });
 
-    if (!sucesso) {
-      Alert.alert("Erro", "E-mail já cadastrado.");
-      return;
-    }
+    setLoading(false);
 
-    Alert.alert("Sucesso!", "Conta criada com sucesso!");
-    navigation.navigate("Login");
+    if (resultado.success) {
+      Alert.alert("Sucesso!", "Conta criada com sucesso!");
+      navigation.navigate("Login");
+    } else {
+      Alert.alert("Erro", resultado.error);
+    }
   };
 
   return (
@@ -133,8 +138,16 @@ export default function Cadastro({ navigation }) {
           onChangeText={setConfirmarSenha}
         />
 
-        <TouchableOpacity style={styles.botao} onPress={handleCadastro}>
-          <Text style={styles.botaoTexto}>Cadastrar</Text>
+        <TouchableOpacity 
+          style={[styles.botao, loading && { opacity: 0.7 }]} 
+          onPress={handleCadastro}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator size="small" color="#fff" />
+          ) : (
+            <Text style={styles.botaoTexto}>Cadastrar</Text>
+          )}
         </TouchableOpacity>
 
         <View style={styles.divider}>
