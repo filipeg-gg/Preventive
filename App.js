@@ -32,6 +32,10 @@ import T3 from './telas/conteudo/cuidados/IniciaisPre/t3'
 //telas exames
 import Exames from './telas/conteudo/exames/Exames'
 
+//telas chat
+import ChatBot from './telas/conteudo/chat/ChatBot'
+
+
 //telas perfil
 import Perfil from './telas/conteudo/perfil/Perfil'
 import Ajuda from './telas/conteudo/perfil/Tls/Aju'
@@ -68,6 +72,8 @@ export default function MyDrawer() {
       <Drawer.Screen name="t2" component={T2} options={{headerShown:false}}/>
       <Drawer.Screen name="t3" component={T3} options={{headerShown:false}}/>
       <Drawer.Screen name="Exames" component={Exames} options={{headerShown:false}}/>
+
+      <Drawer.Screen name="ChatBot" component={ChatBot} options={{headerShown:false}}/>
       <Drawer.Screen name="Perfil" component={Perfil} options={{headerShown:false}}/>
       <Drawer.Screen name="Ajuda" component={Ajuda} options={{headerShown:false}}/>
       <Drawer.Screen name="EditP" component={EditP} options={{headerShown:false}}/>

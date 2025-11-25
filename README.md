@@ -1,4 +1,4 @@
-Descrição:O aplicativo Preventive é uma solução digital voltada para o gerenciamento e disseminação de informações sobre exames preventivos e doenças íntimas. Voltado a pessoas a partir dos 16 anos, oferece recursos como calendário de exames, histórico de resultados, lembretes e conteúdos educativos. O objetivo é facilitar o cuidado com a saúde íntima, combater a desinformação e reduzir o número de doenças diagnosticadas tardiamente.
+Descrição: O aplicativo Preventive é uma solução digital voltada para o gerenciamento e disseminação de informações sobre exames preventivos e doenças íntimas. Voltado a pessoas a partir dos 16 anos, oferece recursos como calendário de exames, histórico de resultados, lembretes e conteúdos educativos. O objetivo é facilitar o cuidado com a saúde íntima, combater a desinformação e reduzir o número de doenças diagnosticadas tardiamente.
 
 Integrantes:
 -Cauê Pereira das Dores

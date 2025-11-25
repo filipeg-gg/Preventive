@@ -451,15 +451,18 @@ export default function Principal() {
       </ImageBackground>
 
       <View style={styles.navbar}>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Principal")}>
-            <Icon name="home" size={25} color="#3b82f6" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Cuidados")}>
-            <Icon name="heart" size={25} color="#6b7280" />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Perfil")}>
-            <Icon name="comment" size={25} color="#6b7280" />
-          </TouchableOpacity> 
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Principal")}>
+          <Icon name="home" size={25} color="#6b7280" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Exames")}>
+          <Icon name="file-text" size={25} color="#3b82f6" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Cuidados")}>
+          <Icon name="heart" size={25} color="#6b7280" />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("ChatBot")}>
+          <Icon name="user" size={25} color="#6b7280" />
+        </TouchableOpacity>
       </View>
 
       <Modal transparent animationType="fade" visible={modalVisible} onRequestClose={closeModal}>
