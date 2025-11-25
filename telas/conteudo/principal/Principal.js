@@ -452,10 +452,10 @@ export default function Principal() {
 
       <View style={styles.navbar}>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Principal")}>
-          <Icon name="home" size={25} color="#6b7280" />
+          <Icon name="home" size={25} color="#3b82f6" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Exames")}>
-          <Icon name="file-text" size={25} color="#3b82f6" />
+          <Icon name="file-text" size={25} color="#6b7280" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Cuidados")}>
           <Icon name="heart" size={25} color="#6b7280" />

@@ -137,8 +137,8 @@ export default function Perfil({ navigation }) {
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Cuidados")}>
           <Icon name="heart" size={25} color="#6b7280" />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("Perfil")}>
-          <Icon name="user" size={25} color="#3b82f6" />
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("ChatBot")}>
+          <Icon name="user" size={25} color="#6b7280" />
         </TouchableOpacity>
       </View>
     </View>

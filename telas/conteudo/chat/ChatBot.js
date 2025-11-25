@@ -15,27 +15,6 @@ import { useNavigation } from "@react-navigation/native";
 export default function ChatBot() {
   const navigation = useNavigation();
 
-    // ======== Drawer lateral ========
-    const [drawerVisible, setDrawerVisible] = useState(false);
-    const slideAnim = useRef(new Animated.Value(Dimensions.get("window").width)).current;
-  
-    useEffect(() => {
-      if (drawerVisible) {
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      } else {
-        Animated.timing(slideAnim, {
-          toValue: Dimensions.get("window").width,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      }
-    }, [drawerVisible]);
-
-
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -86,43 +65,7 @@ export default function ChatBot() {
         </TouchableOpacity>
       </View>
 
-      {/* Drawer lateral */}
-            <Modal
-              visible={drawerVisible}
-              transparent
-              animationType="none"
-              onRequestClose={() => setDrawerVisible(false)}
-            >
-              <TouchableOpacity
-                style={styles.drawerOverlay}
-                activeOpacity={1}
-                onPressOut={() => setDrawerVisible(false)}
-              >
-                <Animated.View
-                  style={[
-                    styles.drawerContent,
-                    { transform: [{ translateX: slideAnim }] },
-                  ]}
-                >
-                  <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Principal")}>
-                    <Text style={styles.drawerText}>Principal</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Exames")}>
-                    <Text style={styles.drawerText}>Exames</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Cuidados")}>
-                    <Text style={styles.drawerText}>Cuidados</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Perfil")}>
-                    <Text style={styles.drawerText}>Perfil</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={styles.drawerItem} onPress={() => alert("Inicial")}>
-                    <Text style={styles.drawerText}>Sair</Text>
-                  </TouchableOpacity>
-                </Animated.View>
-      
-              </TouchableOpacity>
-            </Modal>
+    
     </View>
   );
 }

@@ -1,17 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  Alert,
-  Modal,
-  Dimensions,
-  Animated,
-  Easing,
-} from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Modal, Dimensions, Animated, Easing} from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
 
@@ -26,25 +14,6 @@ export default function Exames() {
   const [filterResul, setFilterResul] = useState("Todos");
   const [selectedItem, setSelectedItem] = useState(null);
 
-    // ======== Drawer lateral ========
-    const [drawerVisible, setDrawerVisible] = useState(false);
-    const slideAnim = useRef(new Animated.Value(Dimensions.get("window").width)).current;
-  
-    useEffect(() => {
-      if (drawerVisible) {
-        Animated.timing(slideAnim, {
-          toValue: 0,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      } else {
-        Animated.timing(slideAnim, {
-          toValue: Dimensions.get("window").width,
-          duration: 300,
-          useNativeDriver: true,
-        }).start();
-      }
-    }, [drawerVisible]);
 
   const [fadeAnim] = useState(new Animated.Value(0));
 
@@ -106,15 +75,10 @@ export default function Exames() {
                 <Icon name="user" size={24} color="#6b7280" />
               </TouchableOpacity>
           <Text style={styles.headerText}>Exames</Text>
-              <TouchableOpacity
-                style={styles.iconButton}
-                activeOpacity={0.8}
-                onPress={() => setDrawerVisible(true)} 
-              >
-                <Icon name="more-vertical" size={24} color="#6b7280" />
-              </TouchableOpacity>
+                    <TouchableOpacity style={styles.iconButton} activeOpacity={0.8} onPress={() => navigation.navigate("Perfil")}>
+                      <Icon name="settings" size={24} color="#6b7280" />
+                    </TouchableOpacity>
         </View>
-
         <View style={styles.headerBottom}>
           <TouchableOpacity
             style={[styles.tabButton, activeTab === "exames" && styles.tabButtonActive]}
@@ -264,43 +228,6 @@ export default function Exames() {
         </Animated.View>
       </Modal>
 
-      {/* Drawer lateral */}
-      <Modal
-        visible={drawerVisible}
-        transparent
-        animationType="none"
-        onRequestClose={() => setDrawerVisible(false)}
-      >
-        <TouchableOpacity
-          style={styles.drawerOverlay}
-          activeOpacity={1}
-          onPressOut={() => setDrawerVisible(false)}
-        >
-          <Animated.View
-            style={[
-              styles.drawerContent,
-              { transform: [{ translateX: slideAnim }] },
-            ]}
-          >
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Principal")}>
-              <Text style={styles.drawerText}>Principal</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Exames")}>
-              <Text style={styles.drawerText}>Exames</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Cuidados")}>
-              <Text style={styles.drawerText}>Cuidados</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => navigation.navigate("Perfil")}>
-              <Text style={styles.drawerText}>Perfil</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.drawerItem} onPress={() => alert("Inicial")}>
-              <Text style={styles.drawerText}>Sair</Text>
-            </TouchableOpacity>
-          </Animated.View>
-
-        </TouchableOpacity>
-      </Modal>
 
       {/* Navbar */}
       <View style={styles.navbar}>
@@ -332,10 +259,10 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     paddingBottom: height * 0.015,
-    height: height * 0.15,
-    marginTop: height * 0.02,
+    height: height * 0.2,
+
   },
-  headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16 },
+  headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, marginTop: height * 0.035 },
   headerBottom: { flexDirection: "row", justifyContent: "center", gap: 12, paddingBottom: 8 },
   avatar: {
     width: width * 0.1,

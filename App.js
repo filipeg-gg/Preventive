@@ -50,8 +50,8 @@ const Drawer = createDrawerNavigator();
 
 export default function MyDrawer() {
   return (
-    <NavigationContainer>
-    <Drawer.Navigator initialRouteName="Tl1"  >
+    <NavigationContainer >
+    <Drawer.Navigator initialRouteName="Tl1" screenOptions={{ swipeEnabled: false, drawerStyle: {display: 'none'},  gestureEnabled: false, edgeWidth: 0  }}  >
       <Drawer.Screen name="Tl1" component={Tl1} options={{headerShown:false}}/>  
       <Drawer.Screen name="Tl2" component={Tl2} options={{headerShown:false}}/> 
       <Drawer.Screen name="Tl3" component={Tl3} options={{headerShown:false}}/>  

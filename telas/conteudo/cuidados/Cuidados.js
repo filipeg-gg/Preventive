@@ -81,24 +81,19 @@ export default function Cuidados() {
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.avatar}
-          activeOpacity={0.8}
-          onPress={() => navigation.navigate("Perfil")}
-        >
-          <Icon name="user" size={24} color="#fff" />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>Meus cuidados</Text>
-
-              <TouchableOpacity
-                style={styles.iconButton}
-                activeOpacity={0.8}
-                onPress={() => setDrawerVisible(true)} 
-              >
-                <Icon name="more-vertical" size={24} color="#6b7280" />
-              </TouchableOpacity>
-      </View>
+                <View style={[styles.header ]}>
+                  <View style={styles.headerContent}>
+                    <TouchableOpacity style={styles.avatar} activeOpacity={0.8}>
+                      <Icon name="user" size={24} color="#6b7280" />
+                    </TouchableOpacity>
+      
+                    <Text style={styles.headerText}>Cuidados</Text>
+      
+                    <TouchableOpacity style={styles.iconButton} activeOpacity={0.8} onPress={() => navigation.navigate("Perfil")}>
+                      <Icon name="settings" size={24} color="#6b7280" />
+                    </TouchableOpacity>
+                  </View>
+                </View>
 
       {/* Conteúdo */}
       <ScrollView
@@ -153,7 +148,7 @@ export default function Cuidados() {
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.navItem}
-          onPress={() => navigation.navigate("Perfil")}
+          onPress={() => navigation.navigate("ChatBot")}
         >
           <Icon name="user" size={25} color="#6b7280" />
         </TouchableOpacity>
@@ -210,6 +205,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#AFC8FF",
     height: 120,
   },
+  headerContent: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   avatar: {
     width: 45,
     height: 45,
