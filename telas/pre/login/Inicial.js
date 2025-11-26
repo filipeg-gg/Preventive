@@ -43,12 +43,6 @@ export default function Inicial({ navigation }) {
           </TouchableOpacity>
         </View>
         
-        {/* Divisor futura conexão com google e apple*/}
-        <View style={styles.divider}>
-          <View style={styles.line} />
-          <Text style={styles.dividerText}>ou</Text>
-          <View style={styles.line} />
-        </View>
       </View>
     </View>
   );

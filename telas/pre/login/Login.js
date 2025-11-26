@@ -121,11 +121,6 @@ export default function Login({ navigation }) {
             </Text>
           </View>
 
-          <View style={styles.divider}>
-            <View style={styles.line} />
-            <Text style={styles.dividerText}>ou</Text>
-            <View style={styles.line} />
-          </View>
         </View>
       </View>
     </View>

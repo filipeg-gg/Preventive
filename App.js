@@ -22,13 +22,6 @@ import Respiracao from './telas/conteudo/cuidados/tlsCuidados/respiracao'
 import Yoga from './telas/conteudo/cuidados/tlsCuidados/yoga'
 import Relatorios from './telas/conteudo/cuidados/tlsCuidados/relatorios'
 
-//telas premium
-import InicialPre from './telas/conteudo/cuidados/premium/inicialPre'
-import ExpliPre from './telas/conteudo/cuidados/premium/expliPre'
-import T1 from './telas/conteudo/cuidados/IniciaisPre/t1'
-import T2 from './telas/conteudo/cuidados/IniciaisPre/t2'
-import T3 from './telas/conteudo/cuidados/IniciaisPre/t3'
-
 //telas exames
 import Exames from './telas/conteudo/exames/Exames'
 
@@ -66,11 +59,6 @@ export default function MyDrawer() {
       <Drawer.Screen name="Respiracao" component={Respiracao} options={{headerShown:false}}/>
       <Drawer.Screen name="Yoga" component={Yoga} options={{headerShown:false}}/>
       <Drawer.Screen name="Relatorios" component={Relatorios} options={{headerShown:false}}/>
-      <Drawer.Screen name="expliPre" component={ExpliPre} options={{headerShown:false}}/>
-      <Drawer.Screen name="inicialPre" component={InicialPre} options={{headerShown:false}}/>
-      <Drawer.Screen name="t1" component={T1} options={{headerShown:false}}/>
-      <Drawer.Screen name="t2" component={T2} options={{headerShown:false}}/>
-      <Drawer.Screen name="t3" component={T3} options={{headerShown:false}}/>
       <Drawer.Screen name="Exames" component={Exames} options={{headerShown:false}}/>
 
       <Drawer.Screen name="ChatBot" component={ChatBot} options={{headerShown:false}}/>

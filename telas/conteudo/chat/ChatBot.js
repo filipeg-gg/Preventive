@@ -5,9 +5,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Animated,
-  Dimensions,
-  Modal,
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
@@ -147,19 +144,6 @@ const styles = StyleSheet.create({
     color: "#374151",
     marginTop: 4,
   },
-  navbar: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    alignItems: "center",
-    paddingVertical: 12,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 5,
-    borderRadius: 20,
-    marginHorizontal: 20,
-    bottom: 40,
-  },
+  navbar: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 12, backgroundColor: "#fff", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 4, elevation: 5, borderRadius: 20, marginHorizontal: 50, bottom: 40 },
   navItem: { alignItems: "center" },
 });
