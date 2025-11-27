@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert, Modal, Dimensions, Animated, Easing} from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
+import { collection, onSnapshot } from "firebase/firestore";
+import { db } from "../../../firebaseConfig"; 
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -36,17 +39,24 @@ export default function Exames() {
     }).start(() => setSelectedItem(null));
   };
 
-  const exames = [
-    { id: 1, nome: "Mamografia", data: "07 de maio de 2025", tipo: "Imagem", status: "Em andamento" },
-    { id: 2, nome: "Transvaginal", data: "18 de março de 2025", tipo: "Ultrassom", status: "Pendente" },
-    { id: 3, nome: "Papanicolau", data: "03 de junho de 2023", tipo: "Preventivo", status: "Concluído" },
-  ];
+  const [exames, setExames] = useState([]);
+  const [examesResul, setResultados] = useState([]);
 
-  const examesResul = [
-    { id: 1, nome: "Resultado Mamografia", data: "24 de março de 2025", tipo: "Imagem", status: "Disponível" },
-    { id: 2, nome: "Resultado Transvaginal", data: "30 de abril de 2024", tipo: "Ultrassom", status: "Disponível" },
-    { id: 3, nome: "Resultado Papanicolau", data: "15 de junho de 2023", tipo: "Preventivo", status: "Disponível" },
-  ];
+  useEffect(() => {
+    const unsubscribeExames = onSnapshot(collection(db, "eventos"), snap => {
+      const dados = snap.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setExames(dados.filter(item => item.categoria === "exame"));
+      setResultados(dados.filter(item => item.categoria === "resultado"));
+    });
+
+    return () => unsubscribeExames();
+  }, []);
+
+
 
   const examesFiltrados = exames.filter(
     (exame) =>
@@ -55,30 +65,40 @@ export default function Exames() {
       (filter === "Todos" || exame.tipo === filter)
   );
 
-  const examesFiltradosResul = examesResul.filter(
+  const resultadosFiltrados = examesResul.filter(
     (exame) =>
       (exame.nome.toLowerCase().includes(searchResul.toLowerCase()) ||
         exame.data.includes(searchResul)) &&
       (filterResul === "Todos" || exame.tipo === filterResul)
   );
 
+
+  const getCardColor = (categoria) => {
+    return categoria === "exame" ? "#f472b6" : "#60a5fa";
+  };
+
   return (
     <View style={styles.container}>
       {/* Header */}
-      <View style={styles.cab}>
-        <View style={styles.headerTop}>
-              <TouchableOpacity
-                style={styles.avatar}
-                activeOpacity={0.8}
-                onPress={() => navigation.navigate("Perfil")}
-              >
-                <Icon name="user" size={24} color="#6b7280" />
-              </TouchableOpacity>
-          <Text style={styles.headerText}>Exames</Text>
-                    <TouchableOpacity style={styles.iconButton} activeOpacity={0.8} onPress={() => navigation.navigate("Perfil")}>
-                      <Icon name="settings" size={24} color="#6b7280" />
-                    </TouchableOpacity>
+      <View style={styles.header}>
+
+        <View style={styles.headerContent}>
+          <TouchableOpacity style={styles.avatar} activeOpacity={0.8}>
+            <Icon name="user" size={24} color="#6b7280" />
+          </TouchableOpacity>
+
+          <Text style={styles.headerText}>Meus exames</Text>
+
+          <TouchableOpacity
+            style={styles.avatar}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate("Perfil")}
+          >
+            <Icon name="settings" size={20} color="#6b7280" />
+          </TouchableOpacity>
         </View>
+
+
         <View style={styles.headerBottom}>
           <TouchableOpacity
             style={[styles.tabButton, activeTab === "exames" && styles.tabButtonActive]}
@@ -131,7 +151,7 @@ export default function Exames() {
             {examesFiltrados.map((exame) => (
               <TouchableOpacity
                 key={exame.id}
-                style={styles.card}
+                style={[styles.card, { backgroundColor: getCardColor(exame.categoria) }]}
                 onPress={() => openModal(exame)}
               >
                 <Icon name="file-text" size={22} color="#fff" style={styles.cardIcon} />
@@ -142,17 +162,6 @@ export default function Exames() {
                 <Icon name="chevron-right" size={22} color="#6b7280" />
               </TouchableOpacity>
             ))}
-
-            <View style={styles.pendingCard}>
-              <TouchableOpacity
-                style={styles.bigScheduleButton}
-                onPress={() =>
-                  Alert.alert("Funcionalidade futura", "Em breve você poderá agendar exames por aqui!")
-                }
-              >
-                <Text style={styles.bigScheduleText}>Agendar outro Exame</Text>
-              </TouchableOpacity>
-            </View>
           </View>
         )}
 
@@ -176,10 +185,18 @@ export default function Exames() {
               </TouchableOpacity>
             </View>
 
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => navigation.navigate("NovoEve", { tipo: "Resultado" })}
+            >
+              <Icon name="plus" size={18} color="#fff" />
+              <Text style={styles.addButtonText}>Adicionar novo</Text>
+            </TouchableOpacity>
+
             {examesFiltradosResul.map((exame) => (
               <TouchableOpacity
                 key={exame.id}
-                style={styles.card}
+                style={[styles.card, { backgroundColor: getCardColor(exame.categoria) }]}
                 onPress={() => openModal(exame)}
               >
                 <Icon name="file-text" size={22} color="#fff" style={styles.cardIcon} />
@@ -194,14 +211,6 @@ export default function Exames() {
         )}
       </ScrollView>
 
-      {activeTab === "resultados" && (
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => navigation.navigate("NovoEve", { tipo: "resultado" })}
-        >
-          <Icon name="plus" size={28} color="#fff" />
-        </TouchableOpacity>
-      )}
 
       <Modal transparent visible={!!selectedItem} animationType="none">
         <Animated.View style={[styles.modalContainer, { opacity: fadeAnim }]}>
@@ -220,10 +229,10 @@ export default function Exames() {
                 <Text style={styles.tagText}>{selectedItem?.nome}</Text>
               </View>
             </View>
-            <Text style={styles.modalText}>
-              Você agendou {selectedItem?.nome} para o dia {selectedItem?.data}.{"\n"}
-              Tipo: {selectedItem?.tipo}.
-            </Text>
+          <Text style={styles.modalTitle}>
+            {selectedItem?.categoria === "resultado" ? "Resultado" : "Exame"}
+          </Text>
+
           </View>
         </Animated.View>
       </Modal>
@@ -250,28 +259,24 @@ export default function Exames() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9fafb" },
-  cab: {
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOpacity: 0.05,
-    shadowRadius: 4,
-    elevation: 3,
-    borderBottomLeftRadius: 20,
-    borderBottomRightRadius: 20,
-    paddingBottom: height * 0.015,
-    height: height * 0.2,
-
+  header: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
   },
-  headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, marginTop: height * 0.035 },
-  headerBottom: { flexDirection: "row", justifyContent: "center", gap: 12, paddingBottom: 8 },
   avatar: {
-    width: width * 0.1,
-    height: width * 0.1,
-    borderRadius: width * 0.05,
-    backgroundColor: "#d1d5db",
+    width: 45,
+    height: 45,
+    borderRadius: 50,
+    backgroundColor: "#EDEDED",
     justifyContent: "center",
     alignItems: "center",
   },
+  headerContent: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  headerText: { fontSize: 20, fontWeight: "700", color: "#120D37" },
+  headerTop: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 16, marginTop: height * 0.045 },
+  headerBottom: { flexDirection: "row", justifyContent: "center", gap: 12, paddingBottom: 8, marginTop: 16 },
   drawerOverlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.3)",
@@ -301,7 +306,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#333",
   },
-  headerText: { fontSize: 18, fontWeight: "600" },
   tabButton: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 20 },
   tabButtonActive: { backgroundColor: "#fbcfe8" },
   tabText: { fontSize: 14, color: "#6b7280" },

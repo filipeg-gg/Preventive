@@ -94,9 +94,15 @@ export default function Principal() {
   // hospitais
   const [pesquisa, setPesquisa] = useState("");
   const postos = [
-    { id: 1, nome: "UBS Central", endereco: "Av. Principal, 1200", imagem: "https://i.imgur.com/9Q9qFzq.png", tags: ["Público", "7h às 19h"] },
-    { id: 2, nome: "Hospital São Lucas", endereco: "Rua das Flores, 300", imagem: "https://i.imgur.com/0DElr0H.png", tags: ["Particular", "24h"] },
-    { id: 3, nome: "Posto Jardim Azul", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] }
+    { id: 1, nome: "Pronto Socorro Doutor Akira Tada", endereco: "Av. Principal, 1200", imagem: "https://i.imgur.com/9Q9qFzq.png", tags: ["Público", "7h às 19h"] },
+    { id: 2, nome: "Hospital Family", endereco: "Rua das Flores, 300", imagem: "https://i.imgur.com/0DElr0H.png", tags: ["Particular", "24h"] },
+    { id: 3, nome: "Hospital das Clínicas", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { id: 4, nome: "Mais Vc Diagnósticos por Imagem", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { id: 5, nome: "Policlínica Taboão", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { id: 6, nome: "Pronto Socorro Antena", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { id: 7, nome: "Hapvida Notrelabs Taboão da Serra", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { id: 8, nome: "AmorSaúde Taboão da Serra", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { id: 9, nome: "Greenline (Pronto Socorros) Taboão", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
   ];
 
   const postosFiltrados = postos.filter(posto =>
@@ -289,8 +295,8 @@ export default function Principal() {
   return (
     <View style={styles.container}>
       <ImageBackground source={require("../../../assets/Home.png")} style={styles.headerBg} resizeMode="cover">
-        <SafeAreaView>
-          <View style={[styles.header, { height: HEADER_HEIGHT, paddingHorizontal: H_PADDING }]}>
+
+          <View style={styles.header}>
             <View style={styles.headerContent}>
               <TouchableOpacity style={styles.avatar} activeOpacity={0.8}>
                 <Icon name="user" size={24} color="#6b7280" />
@@ -298,12 +304,12 @@ export default function Principal() {
 
               <Text style={styles.headerText}>Olá, {nomeUsuario} </Text>
 
-              <TouchableOpacity style={styles.iconButton} activeOpacity={0.8} onPress={() => navigation.navigate("Perfil")}>
+              <TouchableOpacity style={styles.avatar} activeOpacity={0.8} onPress={() => navigation.navigate("Perfil")}>
                 <Icon name="settings" size={24} color="#6b7280" />
               </TouchableOpacity>
             </View>
           </View>
-        </SafeAreaView>
+
 
         <ScrollView
           style={styles.content}
@@ -477,11 +483,21 @@ export default function Principal() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#f9fafb" },
   headerBg: { flex: 1, width: "100%" },
-  header: { justifyContent: "center" },
+  header: {
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
+  },
+  avatar: {
+    width: 45,
+    height: 45,
+    borderRadius: 50,
+    backgroundColor: "#EDEDED",
+    justifyContent: "center",
+    alignItems: "center",
+  },
   headerContent: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  avatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: "#e5e7eb", justifyContent: "center", alignItems: "center", shadowColor: "#000", shadowOpacity: 0.06, shadowOffset: { width: 0, height: 2 }, shadowRadius: 3, elevation: 2 },
-  iconButton: { borderRadius: 50, padding: 8, justifyContent: "center", alignItems: "center", backgroundColor: "#e5e7eb" },
-  headerText: { fontSize: 18, fontWeight: "700", color: "#111827" },
+  headerText: { fontSize: 20, fontWeight: "700", color: "#120D37" },
   content: { flex: 1 },
   card: { backgroundColor: "#fff", borderRadius: 14, padding: 16, marginBottom: 12, shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 6, shadowOffset: { width: 0, height: 4 }, elevation: 3 },
   sectionTitle: { fontSize: 16, fontWeight: "700", marginBottom: 8, color: "#111827" },

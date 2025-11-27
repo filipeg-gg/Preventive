@@ -176,10 +176,23 @@ export default function ChatBot() {
     return (
       <View style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#FAFAFA" />
+              <View style={styles.header}>
+                <View style={styles.headerContent}>
+                  <TouchableOpacity style={styles.avatar} activeOpacity={0.8}>
+                    <Icon name="user" size={24} color="#6b7280" />
+                  </TouchableOpacity>
         
-        <View style={styles.headerLista}>
-          <Text style={styles.headerTitle}>Mensagens</Text>
-        </View>
+                  <Text style={styles.headerText}>Mensagens</Text>
+        
+                  <TouchableOpacity
+                    style={styles.avatar}
+                    activeOpacity={0.8}
+                    onPress={() => navigation.navigate("Perfil")}
+                  >
+                    <Icon name="settings" size={20} color="#6b7280" />
+                  </TouchableOpacity>
+                </View>
+              </View>
 
         {loading ? (
           <ActivityIndicator color="#3b82f6" style={{marginTop: 50}} />
@@ -308,8 +321,23 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: "#FAFAFA" },
   containerChat: { flex: 1, backgroundColor: "#FAFAFA" },
 
-  headerLista: { paddingTop: 60, paddingHorizontal: 24, paddingBottom: 15, backgroundColor: "#FAFAFA" },
-  headerTitle: { fontSize: 28, fontWeight: "bold", color: "#1B0C45" },
+header: {
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 16,
+    paddingTop: 60,
+    paddingBottom: 16,
+  },
+  avatar: {
+    width: 45,
+    height: 45,
+    borderRadius: 50,
+    backgroundColor: "#EDEDED",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+ 
+  headerContent: { width: "100%", flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  headerText: { fontSize: 20, fontWeight: "700", color: "#120D37" },
 
   lista: { flex: 1 },
   emptyState: { alignItems: 'center', marginTop: 100, opacity: 0.6 },
@@ -324,7 +352,7 @@ const styles = StyleSheet.create({
   chatPreview: { fontSize: 14, color: "#888" },
   dot: { width: 10, height: 10, borderRadius: 5, backgroundColor: "#3b82f6" },
 
-  navbar: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 12, backgroundColor: "#fff", borderTopWidth: 1, borderColor: "#f0f0f0", paddingBottom: 30 },
+  navbar: { flexDirection: "row", justifyContent: "space-around", alignItems: "center", paddingVertical: 12, backgroundColor: "#fff", shadowColor: "#000", shadowOpacity: 0.05, shadowRadius: 4, elevation: 5, borderRadius: 20, marginHorizontal: 50, bottom: 40 },
   navItem: { alignItems: "center" },
 
   headerChat: { flexDirection: "row", alignItems: "center", paddingTop: 50, paddingBottom: 10, paddingHorizontal: 16, backgroundColor: "#FAFAFA" },
