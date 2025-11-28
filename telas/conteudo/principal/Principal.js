@@ -241,7 +241,11 @@ export default function Principal() {
               style={[styles.modalBtn, styles.btnPrimary]}
               onPress={() => {
                 closeModal();
-                navigation.navigate("NovoEve");
+                navigation.navigate("NovoEve",{
+                  abrirModal:true,
+                  abrirModalLocal:false,
+                  tipo: null,
+                });
               }}
             >
               <Text style={styles.modalBtnText}>Adicionar</Text>
@@ -421,10 +425,8 @@ export default function Principal() {
               </View>
             </View>
         </View>
-
-        <TouchableOpacity style={styles.botaoConsulta} >
-          <Image source={require('../../../assets/consulta.png')} style={styles.imagemBotaoConsulta} resizeMode="contain" />
-        </TouchableOpacity>
+        <View style={styles.consulta}>
+        <Text style={styles.subtitulo}>Marque consultas</Text>
 
         <View style={styles.campoPesquisa}>
           <Icon name="search" size={20} color="#666" style={styles.iconePesquisa} />
@@ -438,7 +440,7 @@ export default function Principal() {
 
         <View style={styles.listaPostos}>
           {postosFiltrados.map(posto => (
-            <TouchableOpacity key={posto.id} style={styles.cardPosto}>
+            <TouchableOpacity key={posto.id} style={styles.cardPosto}  onPress={() => navigation.navigate("NovoEve", {abrirModal:false, abrirModalLocal: true, tipo: "Exame"})}>
               <Image source={{ uri: posto.imagem }} style={styles.imagemHospital} />
               <View style={styles.infoHospital}>
                 <Text style={styles.nomePosto}>{posto.nome}</Text>
@@ -452,6 +454,7 @@ export default function Principal() {
               <Icon name="chevron-right" size={24} color="#6C63FF" />
             </TouchableOpacity>
           ))}
+        </View>
         </View>
         </ScrollView>
       </ImageBackground>
@@ -523,6 +526,7 @@ const styles = StyleSheet.create({
   modalBtnText: { color: "#fff", fontWeight: "800" },
   modalBtnGhostText: { color: "#111827", fontWeight: "800" },
   sessaoEventos: { marginTop: 25 },
+  consulta: { marginTop: 25 },
   subtitulo: { color: "#1B0C45", fontSize: 18, fontWeight: "600", marginBottom: 15, marginLeft: 5 },
   eventos: { borderRadius: 15, backgroundColor: "#fff", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
   abas: { flexDirection: "row", justifyContent: "space-between", marginVertical: 15, marginHorizontal: 20 },
@@ -533,7 +537,7 @@ const styles = StyleSheet.create({
   textoEvento: { color: "#1B0C45", marginBottom: 8 },
   botaoConsulta: { alignItems: "center", justifyContent: "center", marginTop: 20, shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
   imagemBotaoConsulta: { height: 120, borderRadius: 16 },
-  campoPesquisa: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: "#ddd", marginTop: 20 },
+  campoPesquisa: { flexDirection: "row", alignItems: "center", backgroundColor: "#fff", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: "#ddd" },
   iconePesquisa: { marginRight: 8 },
   inputPesquisa: { flex: 1, fontSize: 15 },
   listaPostos: { marginTop: 12 },

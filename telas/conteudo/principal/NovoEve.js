@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   View, 
   Text, 
@@ -32,14 +32,12 @@ const LOCAIS_DISPONIVEIS = [
 ];
 
 export default function NovoEve({ navigation }) {
-  const route = useRoute();
+const route = useRoute();
+
   const [evento, setEvento] = useState(route.params?.tipo || null);
-  const [visible, setVisible] = useState(!route.params?.tipo);
+  const [visible, setVisible] = useState(route.params?.abrirModal ?? false);
   const [loading, setLoading] = useState(false);
-
-  // Modal de Local
-  const [modalLocalVisible, setModalLocalVisible] = useState(false);
-
+  const [modalLocalVisible, setModalLocalVisible] = useState(route.params?.abrirModalLocal ?? false);
   const [titulo, setTitulo] = useState("");
   const [local, setLocal] = useState(""); // Agora armazenará um dos nomes da lista
   const [obs, setObs] = useState("");
@@ -47,6 +45,24 @@ export default function NovoEve({ navigation }) {
   const [hora, setHora] = useState(new Date());
   const [mostrarDatePicker, setMostrarDatePicker] = useState(false);
   const [mostrarTimePicker, setMostrarTimePicker] = useState(false);  
+// ============================================================
+  // ADICIONE ESTE BLOCO ABAIXO DOS SEUS STATES
+  // ============================================================
+  useEffect(() => {
+    if (route.params) {
+      
+      const deveAbrirModalTipo = route.params.abrirModal ?? false;
+      setVisible(deveAbrirModalTipo);
+
+      const deveAbrirModalLocal = route.params.abrirModalLocal ?? false;
+      setModalLocalVisible(deveAbrirModalLocal);
+      setEvento(route.params.tipo || null);
+    if (!route.params.tipo) setLocal(""); 
+    }
+  }, [route.params]); 
+
+
+
 
   const formatarData = (d) => {
     const dia = String(d.getDate()).padStart(2, "0");
