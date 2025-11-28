@@ -38,7 +38,7 @@ export default function Login({ navigation }) {
     <View style={styles.container}>
       <View style={styles.topContainer}>
         <Image
-          source={require('../../../assets/2.png')}
+          source={require('../../../assets/nome.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -111,10 +111,10 @@ export default function Login({ navigation }) {
             )}
           </TouchableOpacity>
 
-          <View style={styles.textRow}>
-            <Text style={styles.normalText}>Não tem conta? </Text>
+          <View style={styles.textRow1}>
+            <Text style={styles.normalText1}>Não tem conta? </Text>
             <Text
-              style={styles.linkText}
+              style={styles.linkText1}
               onPress={() => navigation.navigate("Cadastro")}
             >
               Cadastre-se
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: width * 0.6,
+    width: "100%",
     height: height * 0.15,
   },
   bottomContainer: {
@@ -192,14 +192,32 @@ const styles = StyleSheet.create({
   },
   textRow: {
     flexDirection: 'row',
-    marginTop: height * 0.02,
+    width: '85%',
+    justifyContent: 'flex-start',
+    marginLeft: 10,
+    marginBottom: height * 0.02,
+  },
+  textRow1: {
+    flexDirection: 'row',
+    marginTop: height * 0.01,
   },
   normalText: {
-    fontSize: width * 0.035,
+    fontSize: width * 0.028,
     color: '#a9a9a9',
     fontWeight: 'bold',
   },
   linkText: {
+    fontSize: width * 0.028,
+    color: '#77a5ff',
+    fontWeight: 'bold',
+    textDecorationLine: 'underline',
+  },
+  normalText1: {
+    fontSize: width * 0.035,
+    color: '#a9a9a9',
+    fontWeight: 'bold',
+  },
+  linkText1: {
     fontSize: width * 0.035,
     color: '#77a5ff',
     fontWeight: 'bold',

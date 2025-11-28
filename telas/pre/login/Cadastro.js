@@ -10,6 +10,8 @@ import {
   ActivityIndicator
 } from "react-native";
 import { registerUser } from "../../../UserStore";  
+import Svg, { Path } from 'react-native-svg';
+
 
 const { width, height } = Dimensions.get("window");
 
@@ -55,8 +57,22 @@ export default function Cadastro({ navigation }) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.formu}>
+      <View style={styles.container}>
+        <View style={styles.waveContainer}>
+          <Svg
+            width={width}
+            height={height * 0.4}
+            viewBox="0 0 1440 320"
+          >
+            <Path
+              fill="#F9FAFB"
+              d="M0,224L48,208C96,192,192,160,288,165.3C384,171,480,213,576,197.3C672,181,768,107,864,96C960,85,1056,139,1152,165.3C1248,192,1344,192,1392,192L1440,192V320H0Z"
+            />
+          </Svg>
+        </View>
+
+        <View style={styles.formu}>
+
         <Text style={styles.titulo}>Novo(a) por aqui?</Text>
 
         <TextInput
@@ -171,8 +187,24 @@ export default function Cadastro({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F9FAFB" },
-  formu: { backgroundColor: "#F9FAFB", alignItems: "center", paddingTop: 40, marginTop: height * 0.12 },
+  container: {
+    flex: 1,
+    backgroundColor: '#AFC8FF',
+  },
+  waveContainer: {
+    position: 'absolute',
+    top: height * -0.05,
+  },
+  svgCloud: {
+    position: 'absolute',
+  },
+  formu: {
+    backgroundColor: "#F9FAFB",
+    alignItems: "center",
+    paddingTop: 40,
+    marginTop: height * 0.18,
+    minHeight: height,
+  },
   titulo: { fontSize: 20, fontWeight: "bold", color: "#77a5ff", marginBottom: 15 },
   input: { width: "85%", height: 45, backgroundColor: "#fff", borderRadius: 12, paddingHorizontal: 12, marginVertical: 6, borderColor: "#E5E7EB", borderWidth: 1, fontSize: 14, color: "#333" },
   sexoContainer: { width: "85%", marginVertical: 6 },

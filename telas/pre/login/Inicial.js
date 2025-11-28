@@ -10,7 +10,7 @@ export default function Inicial({ navigation }) {
       {/* Topo com Logo */}
       <View style={styles.topContainer}>
         <Image
-          source={require('../../../assets/2.png')}
+          source={require('../../../assets/nome.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logo: {
-    width: width * 0.6,
+    width: "100%",
     height: height * 0.15,
   },
   bottomContainer: {
