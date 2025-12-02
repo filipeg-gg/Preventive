@@ -181,11 +181,7 @@ export default function Exames() {
 
                     <TouchableOpacity
                         style={styles.addButton}
-                        onPress={() => navigation.navigate("NovoEve", {
-                            abrirModal: false,       
-                            abrirModalLocal: true,   
-                            tipo: "Exame"         
-                        })}
+                        onPress={() => navigation.navigate("Exame")}
                     >
                         <Icon name="plus" size={18} color="#fff" />
                         <Text style={styles.addButtonText}>Adicionar novo</Text>
@@ -236,11 +232,7 @@ export default function Exames() {
 
                     <TouchableOpacity
                         style={styles.addButton}
-                        onPress={() => navigation.navigate("NovoEve", {
-                            abrirModal: false,       
-                            abrirModalLocal: true,   
-                            tipo: "Resultado"         
-                        })}
+                        onPress={() => navigation.navigate("Resultado")}
                     >
                         <Icon name="plus" size={18} color="#fff" />
                         <Text style={styles.addButtonText}>Adicionar novo</Text>
