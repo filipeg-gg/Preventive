@@ -224,33 +224,75 @@ export default function Principal() {
     openModal({ type: "add", day, event: null });
   };
 
-  const renderModalContent = () => {
+const renderModalContent = () => {
     const { type, day, event } = modalInfo;
 
+    // 1. Passo: Pergunta se quer adicionar
     if (type === "add") {
       const data = new Date(anoAtual, mesAtual, day);
       return (
         <>
-          <Text style={styles.modalTitle}>Adicionar evento?</Text>
-          <Text style={styles.modalText}>Deseja adicionar um novo evento em {formatDate(data)}?</Text>
+          <Text style={styles.modalTitle}>Novo Agendamento</Text>
+          <Text style={styles.modalText}>Deseja adicionar algo para o dia {formatDate(data)}?</Text>
           <View style={styles.modalRow}>
             <TouchableOpacity style={[styles.modalBtn, styles.btnGhost]} onPress={closeModal}>
               <Text style={styles.modalBtnGhostText}>Cancelar</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={[styles.modalBtn, styles.btnPrimary]}
-              onPress={() => {
-                closeModal();
-                navigation.navigate("NovoEve",{
-                  abrirModal:true,
-                  abrirModalLocal:false,
-                  tipo: null,
-                });
-              }}
+              onPress={() => openModal({ type: "selection", day: day, event: null })} // <--- MUDOU AQUI: Vai para a seleção
             >
               <Text style={styles.modalBtnText}>Adicionar</Text>
             </TouchableOpacity>
           </View>
+        </>
+      );
+    }
+
+    // 2. Passo: Escolher o Tipo (Novo!)
+    if (type === "selection") {
+      const dataParaEvento = new Date(anoAtual, mesAtual, day).toISOString(); // Passar a data selecionada
+      
+      return (
+        <>
+          <Text style={styles.modalTitle}>Selecione o Tipo</Text>
+          <Text style={styles.modalText}>O que vamos agendar?</Text>
+          
+          <View style={{ width: '100%', gap: 10 }}>
+            <TouchableOpacity 
+              style={[styles.modalBtnEsc, { backgroundColor: '#fb923c', width: '100%' }]} 
+              onPress={() => {
+                closeModal();
+                navigation.navigate("Consulta", { dataPrevia: dataParaEvento });
+              }}
+            >
+              <Text style={styles.modalBtnText}>Consulta</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.modalBtnEsc, { backgroundColor: '#f472b6', width: '100%' }]} 
+              onPress={() => {
+                closeModal();
+                navigation.navigate("Exame", { dataPrevia: dataParaEvento });
+              }}
+            >
+              <Text style={styles.modalBtnText}>Exame</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.modalBtnEsc, { backgroundColor: '#60a5fa', width: '100%' }]} 
+              onPress={() => {
+                closeModal();
+                navigation.navigate("Resultado", { dataPrevia: dataParaEvento });
+              }}
+            >
+              <Text style={styles.modalBtnText}>Resultado</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={[styles.modalBtnEscCan, styles.btnGhost, { marginTop: 15 }]} onPress={closeModal}>
+              <Text style={styles.modalBtnGhostText}>Cancelar</Text>
+          </TouchableOpacity>
         </>
       );
     }
@@ -440,7 +482,7 @@ export default function Principal() {
 
         <View style={styles.listaPostos}>
           {postosFiltrados.map(posto => (
-            <TouchableOpacity key={posto.id} style={styles.cardPosto}  onPress={() => navigation.navigate("NovoEve", {abrirModal:false, abrirModalLocal: true, tipo: "Exame"})}>
+            <TouchableOpacity key={posto.id} style={styles.cardPosto}  onPress={() => navigation.navigate("Consulta")}>
               <Image source={{ uri: posto.imagem }} style={styles.imagemHospital} />
               <View style={styles.infoHospital}>
                 <Text style={styles.nomePosto}>{posto.nome}</Text>
@@ -521,10 +563,11 @@ const styles = StyleSheet.create({
   modalText: { fontSize: 15, color: "#374151", textAlign: "center", marginBottom: 16, lineHeight: 22 },
   modalRow: { flexDirection: "row", gap: 10 },
   modalBtn: { flex: 1, paddingVertical: 12, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
-  btnGhost: { backgroundColor: "#e5e7eb" },
   btnPrimary: { backgroundColor: "#3b82f6" },
   modalBtnText: { color: "#fff", fontWeight: "800" },
   modalBtnGhostText: { color: "#111827", fontWeight: "800" },
+  modalBtnEsc: { paddingVertical: 12, borderRadius: 999, alignItems: "center", justifyContent: "center", shadowColor: "#000", shadowOpacity: 0.06, shadowRadius: 3, elevation: 2 },
+  modalBtnEscCan: { paddingVertical: 12, borderRadius: 999, alignItems: "center", justifyContent: "center" },
   sessaoEventos: { marginTop: 25 },
   consulta: { marginTop: 25 },
   subtitulo: { color: "#1B0C45", fontSize: 18, fontWeight: "600", marginBottom: 15, marginLeft: 5 },

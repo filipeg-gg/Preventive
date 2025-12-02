@@ -22,6 +22,11 @@ import Respiracao from './telas/conteudo/cuidados/tlsCuidados/respiracao'
 import Yoga from './telas/conteudo/cuidados/tlsCuidados/yoga'
 import Relatorios from './telas/conteudo/cuidados/tlsCuidados/relatorios'
 
+//telas Eventos
+import Consulta from './telas/conteudo/eventos/Consulta'
+import Exame from './telas/conteudo/eventos/Exame'
+import Resultado from './telas/conteudo/eventos/Resultado'
+
 //telas exames
 import Exames from './telas/conteudo/exames/Exames'
 
@@ -59,8 +64,10 @@ export default function MyDrawer() {
       <Drawer.Screen name="Respiracao" component={Respiracao} options={{headerShown:false}}/>
       <Drawer.Screen name="Yoga" component={Yoga} options={{headerShown:false}}/>
       <Drawer.Screen name="Relatorios" component={Relatorios} options={{headerShown:false}}/>
+      <Drawer.Screen name="Consulta" component={Consulta} options={{headerShown:false}}/>
+      <Drawer.Screen name="Exame" component={Exame} options={{headerShown:false}}/>
+      <Drawer.Screen name="Resultado" component={Resultado} options={{headerShown:false}}/>
       <Drawer.Screen name="Exames" component={Exames} options={{headerShown:false}}/>
-
       <Drawer.Screen name="ChatBot" component={ChatBot} options={{headerShown:false}}/>
       <Drawer.Screen name="Perfil" component={Perfil} options={{headerShown:false}}/>
       <Drawer.Screen name="Ajuda" component={Ajuda} options={{headerShown:false}}/>
