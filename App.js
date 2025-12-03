@@ -12,7 +12,6 @@ import Cadastro from './telas/pre/login/Cadastro'
 
 //telas principal
 import Principal from './telas/conteudo/principal/Principal'
-import NovoEve from './telas/conteudo/principal/NovoEve'
 
 //telas cuidados
 import Cuidados from './telas/conteudo/cuidados/Cuidados'
@@ -49,7 +48,13 @@ const Drawer = createDrawerNavigator();
 export default function MyDrawer() {
   return (
     <NavigationContainer >
-    <Drawer.Navigator initialRouteName="Tl1" screenOptions={{ swipeEnabled: false, drawerStyle: {display: 'none'},  gestureEnabled: false, edgeWidth: 0  }}  >
+    <Drawer.Navigator initialRouteName="Tl1" 
+        screenOptions={{ 
+          swipeEnabled: false, 
+          drawerStyle: { display: 'none' },  
+          gestureEnabled: false, 
+          edgeWidth: 0  
+        }}>
       <Drawer.Screen name="Tl1" component={Tl1} options={{headerShown:false}}/>  
       <Drawer.Screen name="Tl2" component={Tl2} options={{headerShown:false}}/> 
       <Drawer.Screen name="Tl3" component={Tl3} options={{headerShown:false}}/>  
@@ -57,7 +62,6 @@ export default function MyDrawer() {
       <Drawer.Screen name="Login" component={Login} options={{headerShown:false}}/>  
       <Drawer.Screen name="Cadastro" component={Cadastro} options={{headerShown:false}}/>  
       <Drawer.Screen name="Principal" component={Principal} options={{headerShown:false}}/>  
-      <Drawer.Screen name='NovoEve' component={NovoEve} options={{headerShown:false}}/>
       <Drawer.Screen name="Cuidados" component={Cuidados} options={{headerShown:false}}/>
       <Drawer.Screen name="Diario" component={Diario} options={{headerShown:false}}/>
       <Drawer.Screen name="Medicamentos" component={Medicamentos} options={{headerShown:false}}/>

@@ -12,7 +12,8 @@ import {
   Animated,
   Image,
   TextInput,
-  ActivityIndicator
+  ActivityIndicator,
+  BackHandler
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
@@ -30,6 +31,9 @@ export default function Principal() {
   }, []);
 
   const navigation = useNavigation();
+
+
+
   const hoje = new Date();
 
   // ======== Eventos ========

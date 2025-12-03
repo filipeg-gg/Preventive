@@ -3,6 +3,7 @@ import {
   View, Text, TouchableOpacity, StyleSheet, 
   Dimensions, Image, TextInput, Alert, ActivityIndicator 
 } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
 import Svg, { Path } from 'react-native-svg';
 import Icon from "react-native-vector-icons/Feather";
 import { loginUser } from '../../../UserStore';
@@ -17,7 +18,12 @@ export default function Login({ navigation }) {
 
   const handleLogin = async () => {
     if (usuarioDigitado === 'adm' && senhaDigitada === '1234') {
-      navigation.navigate("Principal");
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Principal' }],
+        })
+      );
       return;
     } 
 
@@ -28,7 +34,12 @@ export default function Login({ navigation }) {
     setLoading(false);
 
     if (resultado.success) {
-      navigation.navigate("Principal");
+      navigation.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Principal' }],
+        })
+      );
     } else {
       Alert.alert("Erro", resultado.error);
     }
