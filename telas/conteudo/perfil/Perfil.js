@@ -128,7 +128,7 @@ export default function Perfil({ navigation }) {
           <Icon name="heart" size={25} color="#6b7280" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("ChatBot")}>
-          <Icon name="user" size={25} color="#6b7280" />
+          <Icon name="message-circle" size={25} color="#6b7280" />
         </TouchableOpacity>
       </View>
 

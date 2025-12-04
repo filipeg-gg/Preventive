@@ -297,7 +297,7 @@ export default function Cuidados() {
           style={styles.navItem}
           onPress={() => navigation.navigate("ChatBot")}
         >
-          <Icon name="user" size={25} color="#6b7280" />
+          <Icon name="message-circle" size={25} color="#6b7280" />
         </TouchableOpacity>
       </View>
 

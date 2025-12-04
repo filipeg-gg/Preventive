@@ -19,6 +19,7 @@ import Icon from "react-native-vector-icons/Feather";
 import { useNavigation } from "@react-navigation/native";
 import { getCurrentUser } from "../../../UserStore";
 import { getEvents } from "./EventStore";
+import { TreeDeciduous } from "lucide-react";
 
 export default function Principal() {
   const [nomeUsuario, setNomeUsuario] = useState("");
@@ -97,16 +98,32 @@ export default function Principal() {
 
   // hospitais
   const [pesquisa, setPesquisa] = useState("");
+// Dados simulados (No futuro virá do banco de dados)
   const postos = [
-    { id: 1, nome: "Pronto Socorro Doutor Akira Tada", endereco: "Av. Principal, 1200", imagem: "https://i.imgur.com/9Q9qFzq.png", tags: ["Público", "7h às 19h"] },
-    { id: 2, nome: "Hospital Family", endereco: "Rua das Flores, 300", imagem: "https://i.imgur.com/0DElr0H.png", tags: ["Particular", "24h"] },
-    { id: 3, nome: "Hospital das Clínicas", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
-    { id: 4, nome: "Mais Vc Diagnósticos por Imagem", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
-    { id: 5, nome: "Policlínica Taboão", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
-    { id: 6, nome: "Pronto Socorro Antena", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
-    { id: 7, nome: "Hapvida Notrelabs Taboão da Serra", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
-    { id: 8, nome: "AmorSaúde Taboão da Serra", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
-    { id: 9, nome: "Greenline (Pronto Socorros) Taboão", endereco: "Rua Azul, 85", imagem: "https://i.imgur.com/fLkYFZ8.png", tags: ["Público", "Vacinação"] },
+    { 
+      id: 1, 
+      nome: "Hospital VeraCare", 
+      isParceiro: true, // <--- ISSO DEFINE SE ABRE A TELA NOVA
+      endereco: "Rua Padre Pedra, nº 746, Jd. Margaridas, SP", 
+      imagem: "https://img.freepik.com/fotos-gratis/predio-do-hospital-moderno_1127-2856.jpg", // Coloque uma URL real ou require
+      email: "VeraCare@hospital.com",
+      telefone: "(11) 4576-9238",
+      precoExame: "R$200",
+      precoConsulta: "R$100",
+      tags: ["Ambiente limpo", "Área kids", "Atendimento rápido"] 
+    },
+    { 
+      id: 2, 
+      nome: "Hospital Family", 
+      isParceiro: true, 
+      endereco: " Rua João Santucci, 270 - Vila Santa Luzia,Taboão da Serra - SP", 
+      imagem: "https://www.google.com/imgres?q=hospital%20family&imgurl=https%3A%2F%2Fbusqueplanodesaude.com.br%2Fmedia%2Fhospitais%2Ffotos%2FImagem_do_WhatsApp_de_2024-02-18_%25C3%25A0s_20.47.52_18948056.jpg&imgrefurl=https%3A%2F%2Fbusqueplanodesaude.com.br%2Fhospitais%2Fhospital-family-em-taboao-da-serra&docid=8kF2qouw0fvfoM&tbnid=B0ijLBBg0_pm_M&vet=12ahUKEwib57aO9KKRAxXXHbkGHZ_BCj4QM3oECBsQAA..i&w=1030&h=773&hcb=2&ved=2ahUKEwib57aO9KKRAxXXHbkGHZ_BCj4QM3oECBsQAA",
+      email: "family@hospital.com", 
+      telefone: "(11) 4788-7000",
+      precoExame: "R$180",
+      precoConsulta: "R$60",
+      tags: ["Particular", "24h", "Simulado"] 
+    },
   ];
 
   const postosFiltrados = postos.filter(posto =>
@@ -472,13 +489,13 @@ const renderModalContent = () => {
             </View>
         </View>
         <View style={styles.consulta}>
-        <Text style={styles.subtitulo}>Marque consultas</Text>
+        <Text style={styles.subtitulo}>Marque consultas pelo App</Text>
 
         <View style={styles.campoPesquisa}>
           <Icon name="search" size={20} color="#666" style={styles.iconePesquisa} />
           <TextInput
             style={styles.inputPesquisa}
-            placeholder="Buscar posto ou hospital..."
+            placeholder="Buscar hospital parceiro..."
             value={pesquisa}
             onChangeText={setPesquisa}
           />
@@ -486,7 +503,19 @@ const renderModalContent = () => {
 
         <View style={styles.listaPostos}>
           {postosFiltrados.map(posto => (
-            <TouchableOpacity key={posto.id} style={styles.cardPosto}  onPress={() => navigation.navigate("Consulta")}>
+            <TouchableOpacity 
+              key={posto.id} 
+              style={styles.cardPosto}  
+              onPress={() => {
+                if (posto.isParceiro) {
+                  // Se for parceiro, vai para a tela detalhada (TELA DA IMAGEM)
+                  navigation.navigate("Marcar", { hospital: posto });
+                } else {
+                  // Se for público, vai para o formulário manual antigo
+                  navigation.navigate("TelaExame", { localPrevia: posto.nome });
+                }
+              }}
+            >
               <Image source={{ uri: posto.imagem }} style={styles.imagemHospital} />
               <View style={styles.infoHospital}>
                 <Text style={styles.nomePosto}>{posto.nome}</Text>
@@ -516,7 +545,7 @@ const renderModalContent = () => {
           <Icon name="heart" size={25} color="#6b7280" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate("ChatBot")}>
-          <Icon name="user" size={25} color="#6b7280" />
+          <Icon name="message-circle" size={25} color="#6b7280" />
         </TouchableOpacity>
       </View>
 

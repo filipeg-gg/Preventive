@@ -1,3 +1,5 @@
+import React, {useState,useRef} from 'react';
+import { View} from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 
@@ -25,6 +27,7 @@ import Relatorios from './telas/conteudo/cuidados/tlsCuidados/relatorios'
 import Consulta from './telas/conteudo/eventos/Consulta'
 import Exame from './telas/conteudo/eventos/Exame'
 import Resultado from './telas/conteudo/eventos/Resultado'
+import Marcar from './telas/conteudo/eventos/Marcar'
 
 //telas exames
 import Exames from './telas/conteudo/exames/Exames'
@@ -42,12 +45,32 @@ import Pagamento from './telas/conteudo/perfil/Tls/Pag'
 import Preferencias from './telas/conteudo/perfil/Tls/Pref'
 import Privacidade from './telas/conteudo/perfil/Tls/Priv'
 
+import AnuncioModal from './AnuncioModal';
+
 
 const Drawer = createDrawerNavigator();
 
 export default function MyDrawer() {
+
+  const[rotaAtual,setRotaAtual]=useState('Tl1');
+  const navigationRef=useRef();
+
+  const telasBloqueadas=['Tl1','Tl2','Tl3','Inicial','Login','Cadastro'];
+  const mostrarAnuncio=!telasBloqueadas.includes(rotaAtual);
   return (
-    <NavigationContainer >
+    <View style={{flex:1}}>
+    <NavigationContainer 
+      ref={navigationRef}
+        // Quando o app inicia, pega o nome da primeira tela
+        onReady={() => {
+          setRotaAtual(navigationRef.current.getCurrentRoute().name);
+        }}
+        // Toda vez que mudar de tela, atualiza o estado
+        onStateChange={async () => {
+          const currentRouteName = navigationRef.current.getCurrentRoute().name;
+          setRotaAtual(currentRouteName);
+        }}
+    >
     <Drawer.Navigator initialRouteName="Tl1" 
         screenOptions={{ 
           swipeEnabled: false, 
@@ -71,6 +94,7 @@ export default function MyDrawer() {
       <Drawer.Screen name="Consulta" component={Consulta} options={{headerShown:false}}/>
       <Drawer.Screen name="Exame" component={Exame} options={{headerShown:false}}/>
       <Drawer.Screen name="Resultado" component={Resultado} options={{headerShown:false}}/>
+      <Drawer.Screen name="Marcar" component={Marcar} options={{headerShown:false}}/>
       <Drawer.Screen name="Exames" component={Exames} options={{headerShown:false}}/>
       <Drawer.Screen name="ChatBot" component={ChatBot} options={{headerShown:false}}/>
       <Drawer.Screen name="Perfil" component={Perfil} options={{headerShown:false}}/>
@@ -82,6 +106,8 @@ export default function MyDrawer() {
       <Drawer.Screen name="Privacidade" component={Privacidade} options={{headerShown:false}}/>
     </Drawer.Navigator>
     </NavigationContainer>
+    <AnuncioModal ativo={mostrarAnuncio}/>
+    </View>
   );
 }
 
