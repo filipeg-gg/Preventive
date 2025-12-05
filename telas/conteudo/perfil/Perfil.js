@@ -31,13 +31,28 @@ export default function Perfil({ navigation }) {
   }, []);
 
   // Função para abrir o modal com o texto correto
-  const abrirTermos = (tipo) => {
+const abrirTermos = (tipo) => {
     if (tipo === 'privacidade') {
         setModalTitulo("Política de Privacidade");
-        setModalConteudo("Aqui vai o texto da sua Política de Privacidade.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua...");
+        setModalConteudo("Aqui vai o texto da sua Política de Privacidade.\n\nLorem ipsum dolor sit amet, consectetur adipiscing elit...");
     } else {
         setModalTitulo("Termos de Uso");
-        setModalConteudo("Aqui vai o texto dos seus Termos de Uso.\n\n1. O uso deste aplicativo é destinado a...\n2. Os dados coletados serão...");
+        setModalConteudo(`Termos de Uso – Preventive
+
+1. Uso dos Recursos de Prevenção e Conteúdo
+As informações, alertas e relatórios de risco disponibilizados pelo Preventive são de uso estritamente pessoal e intransferível. O usuário não deve compartilhar, reproduzir ou utilizar os dados de inteligência preventiva gerados pela plataforma para fins comerciais ou públicos sem autorização, sob pena de violação dos direitos de propriedade intelectual.
+
+2. Responsabilidade do Usuário e Veracidade dos Dados
+O usuário é inteiramente responsável pela precisão das informações inseridas no aplicativo, especialmente no que tange ao registro de ocorrências ("Novos Eventos"), dados de localização e perfil de risco. A eficácia das funcionalidades de prevenção depende da veracidade desses dados. O Preventive não se responsabiliza por falhas de monitoramento causados por informações incorretas fornecidas pelo usuário.
+
+3. Cancelamento da Assinatura
+O usuário poderá cancelar sua assinatura a qualquer momento através da área de gerenciamento. O cancelamento interrompe a renovação automática para o ciclo seguinte, mas não gera direito a reembolso referente ao período já pago e não utilizado.
+
+4. Limitação de Responsabilidade e Caráter Informativo
+O Preventive é uma ferramenta de apoio à gestão de riscos, não substituindo, em hipótese alguma, os serviços oficiais de emergência e segurança pública (como Polícia ou Bombeiros). O aplicativo não garante a prevenção total de incidentes. Em situações de perigo iminente, acione imediatamente as autoridades.
+
+5. Alterações nos Termos
+O Preventive reserva-se o direito de alterar estes Termos de Uso a qualquer momento. O uso contínuo do aplicativo após tais alterações implica na concordância com os novos termos.`);
     }
     setModalVisible(true);
   };
@@ -106,7 +121,7 @@ export default function Perfil({ navigation }) {
         <Text style={styles.copy}>2025 Preventive, ltd</Text>
 
         <View style={styles.links}>
-          <TouchableOpacity onPress={() => abrirTermos('privacidade')}>
+          <TouchableOpacity onPress={() => abrirTermos('termos')}>
             <Text style={styles.linkText}>Política de privacidade</Text>
           </TouchableOpacity>
           <Text style={{ color: "#BFBEBF" }}> • </Text>

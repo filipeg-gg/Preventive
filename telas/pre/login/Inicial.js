@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
     borderRadius: height * 0.03,
     backgroundColor: '#A1BBEE',
     alignItems: 'center',
-    marginVertical: height * 0.02,
+    marginTop: height * 0.02,
     elevation: 5,
   },
   loginButtonText: {
@@ -91,7 +91,7 @@ const styles = StyleSheet.create({
   },
   textRow: {
     flexDirection: 'row',
-    marginTop: height * 0.04,
+    marginTop: height * 0.02,
   },
   normalText: {
     fontSize: width * 0.035,
