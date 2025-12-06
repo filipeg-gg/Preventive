@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   waveContainer: {
     position: 'absolute',
     top: height * -0.05,
-    zIndex: 1,
+    zIndex: -1,
   },
   formu: {
     backgroundColor: "#F9FAFB",
@@ -282,6 +282,7 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     paddingTop: 30,
+    zIndex: 2,
   },
   titulo: { fontSize: 22, fontWeight: "bold", color: "#77a5ff", marginBottom: 15, alignSelf: 'center' },
   
