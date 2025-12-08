@@ -110,7 +110,7 @@ export default function Principal() {
       telefone: "(11) 4576-9238",
       precoExame: "R$200",
       precoConsulta: "R$100",
-      tags: ["Ambiente limpo", "Área kids", "Atendimento rápido"] 
+      tags: ["Ambiente limpo", "Área kids", "Particular"] 
     },
     { 
       id: 2, 

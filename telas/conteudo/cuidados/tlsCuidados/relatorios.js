@@ -1,368 +1,406 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Modal,
-  TextInput,
-  FlatList,
   Platform,
+  ActivityIndicator,
+  Dimensions
 } from "react-native";
 import Icon from "react-native-vector-icons/Feather";
+import { LineChart } from "react-native-chart-kit";
+
+// --- IMPORTS DO FIREBASE ---
+import { db, auth } from '../../../../firebaseConfig'; 
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+
+const screenWidth = Dimensions.get("window").width;
 
 const months = [
-  "Janeiro",
-  "Fevereiro",
-  "Março",
-  "Abril",
-  "Maio",
-  "Junho",
-  "Julho",
-  "Agosto",
-  "Setembro",
-  "Outubro",
-  "Novembro",
-  "Dezembro",
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
 export default function Relatorios({ navigation }) {
-  const [modalVisible, setModalVisible] = useState(false);
-  const [datePickerVisible, setDatePickerVisible] = useState(false);
-  const [relatorioSelecionado, setRelatorioSelecionado] = useState(null);
-  const [search, setSearch] = useState("");
-  const [selectedMonthIndex, setSelectedMonthIndex] = useState(3); // Abril
-  const [selectedYear, setSelectedYear] = useState(2025);
+  // --- DADOS DO MÊS ATUAL ---
+  const dataAtual = new Date();
+  const mesAtualIndex = dataAtual.getMonth();
+  const anoAtual = dataAtual.getFullYear();
+  const nomeMesAtual = months[mesAtualIndex];
 
-  const relatorios = useMemo(
-    () => [
-      { id: 1, mes: "Abril", ano: 2025 },
-      { id: 2, mes: "Março", ano: 2025 },
-      { id: 3, mes: "Fevereiro", ano: 2025 },
-      { id: 4, mes: "Janeiro", ano: 2025 },
-      { id: 5, mes: "Dezembro", ano: 2024 },
-    ],
-    []
-  );
-
-  const abrirRelatorio = (item) => {
-    setRelatorioSelecionado(item);
-    setModalVisible(true);
-  };
-
-  const toggleDatePicker = () => setDatePickerVisible((v) => !v);
-
-  const filtered = relatorios.filter((r) => {
-    const q = search.trim().toLowerCase();
-    if (!q) return true;
-    return (`${r.mes} ${r.ano}`.toLowerCase().includes(q) || String(r.ano).includes(q));
+  // --- STATES ---
+  const [loading, setLoading] = useState(true);
+  const [dados, setDados] = useState({
+    totalConsultas: 0,
+    totalExames: 0,
+    examesRecentes: [],
+    dadosHumor: [], 
   });
 
-  const applyDateFilter = () => {
-    // If you want to filter the list by the selected month/year, uncomment below
-    // const selected = relatorios.filter(r => r.mes === months[selectedMonthIndex] && r.ano === selectedYear)
-    // setFilteredList(selected)
-    setDatePickerVisible(false);
+  // --- BUSCAR DADOS ---
+  useEffect(() => {
+    const buscarDados = async () => {
+      setLoading(true);
+      try {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        // Definir o intervalo do mês atual
+        const startOfMonth = new Date(anoAtual, mesAtualIndex, 1);
+        const endOfMonth = new Date(anoAtual, mesAtualIndex + 1, 0, 23, 59, 59);
+
+        // 1. Consultas (Mantido igual, caso você tenha essa tela separada)
+        const qConsultas = query(
+          collection(db, "consultas"),
+          where("uid", "==", user.uid),
+          where("data", ">=", startOfMonth),
+          where("data", "<=", endOfMonth)
+        );
+        const snapConsultas = await getDocs(qConsultas);
+
+        // 2. Exames (Mantido igual)
+        const qExames = query(
+          collection(db, "exames"),
+          where("uid", "==", user.uid),
+          where("data", ">=", startOfMonth),
+          where("data", "<=", endOfMonth)
+        );
+        const snapExames = await getDocs(qExames);
+        
+        const listaExames = [];
+        snapExames.forEach(doc => listaExames.push({ id: doc.id, ...doc.data() }));
+
+        // 3. Humor (Diário) - AQUI ESTAVA O SEGREDO
+        // Estamos buscando na coleção "diario" e filtrando por data
+        const qHumor = query(
+          collection(db, "diario"), 
+          where("uid", "==", user.uid),
+          where("data", ">=", startOfMonth),
+          where("data", "<=", endOfMonth),
+          orderBy("data", "asc") // Se der erro de índice aqui, remova esta linha
+        );
+        
+        // Se der erro de índice no console, o Firebase vai pedir pra criar.
+        // Se preferir evitar o erro agora, comente a linha orderBy acima.
+        
+        const snapHumor = await getDocs(qHumor);
+        
+        const humorData = [];
+        snapHumor.forEach(doc => {
+          const d = doc.data();
+          if (d.data && d.data.toDate) {
+             const dataObj = d.data.toDate();
+             const dia = dataObj.getDate(); 
+             // Adiciona ao gráfico: Dia e Nível
+             humorData.push({ dia: dia, nivel: d.humorNivel || 0 }); 
+          }
+        });
+
+        // Ordenar por dia (caso a query não tenha ordenado)
+        humorData.sort((a, b) => a.dia - b.dia);
+
+        setDados({
+          totalConsultas: snapConsultas.size,
+          totalExames: snapExames.size,
+          examesRecentes: listaExames,
+          dadosHumor: humorData,
+        });
+
+      } catch (error) {
+        console.log("Erro ao buscar relatório:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    buscarDados();
+  }, []);
+
+  // --- CONFIG DO GRÁFICO ---
+  const chartConfig = {
+    backgroundGradientFrom: "#fff",
+    backgroundGradientTo: "#fff",
+    color: (opacity = 1) => `rgba(45, 30, 114, ${opacity})`, // Roxo #2D1E72
+    labelColor: (opacity = 1) => `rgba(100, 100, 100, ${opacity})`,
+    strokeWidth: 3, 
+    barPercentage: 0.5,
+    decimalPlaces: 0, // Sem casas decimais (humor é inteiro)
+    propsForDots: {
+      r: "5",
+      strokeWidth: "2",
+      stroke: "#2D1E72"
+    }
+  };
+
+  const dadosGrafico = {
+    labels: dados.dadosHumor.length > 0 ? dados.dadosHumor.map(h => h.dia) : ["0"],
+    datasets: [{
+      data: dados.dadosHumor.length > 0 ? dados.dadosHumor.map(h => h.nivel) : [0],
+    }]
   };
 
   return (
     <View style={styles.container}>
-      {/* Header */}
+      {/* Header Fixo */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerLeft}
-          onPress={() => navigation.navigate("Cuidados")}
-        >
-          <Icon name="arrow-left" size={22} color="#2D1E72" />
+        <TouchableOpacity onPress={() => navigation.navigate("Cuidados")} style={styles.backButton}>
+          <Icon name="arrow-left" size={24} color="#2D1E72" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Relatórios</Text>
-        <View style={styles.headerRight} />
-      </View>
-
-      {/* Search + Filter Row */}
-      <View style={styles.searchRow}>
-        <View style={styles.searchInputBox}>
-          <Icon name="search" size={16} color="#9A98B5" />
-          <TextInput
-            placeholder="Pesquisar por mês ou ano"
-            placeholderTextColor="#9A98B5"
-            style={styles.searchInput}
-            value={search}
-            onChangeText={setSearch}
-          />
-          {search.length > 0 && (
-            <TouchableOpacity onPress={() => setSearch("")}> 
-              <Icon name="x" size={16} color="#9A98B5" />
-            </TouchableOpacity>
-          )}
+        <View>
+          <Text style={styles.headerSubtitle}>Relatório Mensal</Text>
+          <Text style={styles.headerTitle}>{nomeMesAtual} {anoAtual}</Text>
         </View>
-
-        <TouchableOpacity style={styles.filterButton} onPress={toggleDatePicker}>
-          <Icon name="calendar" size={16} color="#fff" />
-        </TouchableOpacity>
       </View>
 
-      {/* Lista de relatórios */}
-      <FlatList
-        data={filtered}
-        keyExtractor={(item) => String(item.id)}
-        contentContainerStyle={styles.lista}
-        renderItem={({ item }) => {
-          const isActive =
-            item.mes === months[selectedMonthIndex] && item.ano === selectedYear;
-          return (
-            <TouchableOpacity
-              style={[styles.card, isActive && styles.cardActive]}
-              onPress={() => abrirRelatorio(item)}
-            >
-              <View>
-                <Text style={styles.cardTitulo}>Relatório de {item.mes} {item.ano}</Text>
-                <Text style={styles.cardTexto}>Confira o relatório sobre sua saúde desse mês</Text>
+      {loading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#2D1E72" />
+          <Text style={styles.loadingText}>Calculando suas estatísticas...</Text>
+        </View>
+      ) : (
+        <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+          
+          {/* --- CARDS DE RESUMO (GRID) --- */}
+          <View style={styles.statsRow}>
+            {/* Card Consultas */}
+            <View style={[styles.statCard, { marginRight: 10 }]}>
+              <View style={[styles.iconCircle, { backgroundColor: '#E0E7FF' }]}>
+                <Icon name="activity" size={22} color="#2D1E72" />
               </View>
-              <Icon name="chevron-right" size={18} color="#C7C2E6" />
-            </TouchableOpacity>
-          );
-        }}
-      />
+              <Text style={styles.statNumber}>{dados.totalConsultas}</Text>
+              <Text style={styles.statLabel}>Consultas</Text>
+            </View>
 
-      {/* Modal de relatório */}
-      <Modal visible={modalVisible} animationType="slide">
-        <View style={styles.modalContainer}>
-          {/* Header Modal */}
-          <View style={styles.headerModal}>
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Icon name="arrow-left" size={22} color="#fff" />
-            </TouchableOpacity>
-            <Text style={styles.headerModalTitle}>Relatório sobre sua saúde</Text>
-            <View style={{ width: 22 }} />
+            {/* Card Exames */}
+            <View style={[styles.statCard, { marginLeft: 10 }]}>
+              <View style={[styles.iconCircle, { backgroundColor: '#E0F2F1' }]}>
+                <Icon name="clipboard" size={22} color="#00695C" />
+              </View>
+              <Text style={styles.statNumber}>{dados.totalExames}</Text>
+              <Text style={styles.statLabel}>Exames</Text>
+            </View>
           </View>
 
-          <ScrollView style={{ padding: 18 }}>
-            {relatorioSelecionado && (
-              <>
-                <Text style={styles.sectionTitle}>Período: {relatorioSelecionado.mes} de {relatorioSelecionado.ano}</Text>
-
-                <View style={styles.box}>
-                  <Text style={styles.boxTitle}>Resumo de atividades</Text>
-                  <Text style={styles.boxLine}>Consultas realizadas: 3</Text>
-                  <Text style={styles.boxLine}>Consultas marcadas: 5</Text>
-                  <Text style={styles.boxLine}>Exames realizados: 2</Text>
-                  <Text style={styles.boxLine}>Exames marcados: 4</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Text style={styles.boxTitle}>Resultado dos exames principais</Text>
-                  <Text style={styles.boxText}>Exames laboratoriais estão dentro da normalidade. Atenção à manutenção de hábitos saudáveis.</Text>
-                </View>
-
-                <View style={styles.box}>
-                  <Text style={styles.boxTitle}>Variações de humor</Text>
-                  <Text style={styles.boxText}>Nesse mês, você se sentiu mais <Text style={{ fontWeight: "700" }}>animado</Text>.</Text>
-                  <View style={styles.fakeChart}><Text style={{ color: "#2D1E72" }}>[Gráfico ilustrativo]</Text></View>
-                </View>
-
-                <View style={styles.box}>
-                  <Text style={styles.boxTitle}>Sintomas</Text>
-                  <Text style={styles.boxText}>Nesse mês, você sentiu: cansaço leve e dor de cabeça.</Text>
-                </View>
-              </>
+          {/* --- GRÁFICO DE HUMOR --- */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Icon name="smile" size={18} color="#2D1E72" />
+              <Text style={styles.sectionTitle}>Variação de Humor</Text>
+            </View>
+            
+            {dados.dadosHumor.length > 0 ? (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <LineChart
+                  data={dadosGrafico}
+                  width={Math.max(screenWidth - 64, dados.dadosHumor.length * 50)} // Cresce se tiver muitos dias
+                  height={180}
+                  chartConfig={chartConfig}
+                  bezier
+                  style={styles.chartStyle}
+                  withInnerLines={false}
+                  withOuterLines={false}
+                  fromZero={true}
+                  yAxisInterval={1}
+                />
+              </ScrollView>
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>Nenhum registro de humor neste mês.</Text>
+              </View>
             )}
-          </ScrollView>
-        </View>
-      </Modal>
-
-      {/* Date Picker modal (custom) */}
-      <Modal visible={datePickerVisible} transparent animationType="fade">
-        <View style={styles.datePickerOverlay}>
-          <View style={styles.datePickerCard}>
-            <Text style={styles.pickerLabel}>Escolha o mês/ano</Text>
-
-            <View style={styles.pickerRow}>
-              <TouchableOpacity
-                onPress={() => setSelectedYear((y) => y - 1)}
-                style={styles.chevBtn}
-              >
-                <Icon name="chevrons-left" size={18} color="#2D1E72" />
-              </TouchableOpacity>
-
-              <View style={styles.pickerColumn}>
-                <View style={styles.pickerMonthRow}>
-                  <TouchableOpacity onPress={() => setSelectedMonthIndex((m) => (m - 1 + 12) % 12)}>
-                    <Icon name="chevron-left" size={22} color="#2D1E72" />
-                  </TouchableOpacity>
-
-                  <Text style={styles.monthText}>{months[selectedMonthIndex]}</Text>
-
-                  <TouchableOpacity onPress={() => setSelectedMonthIndex((m) => (m + 1) % 12)}>
-                    <Icon name="chevron-right" size={22} color="#2D1E72" />
-                  </TouchableOpacity>
-                </View>
-
-                <Text style={styles.yearText}>{selectedYear}</Text>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => setSelectedYear((y) => y + 1)}
-                style={styles.chevBtn}
-              >
-                <Icon name="chevrons-right" size={18} color="#2D1E72" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.pickerActions}>
-              <TouchableOpacity style={styles.pickerCancel} onPress={() => setDatePickerVisible(false)}>
-                <Text>Cancelar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.pickerOk} onPress={applyDateFilter}>
-                <Text style={{ color: "#fff", fontWeight: "700" }}>Ok</Text>
-              </TouchableOpacity>
-            </View>
+            <Text style={styles.chartHelper}>Dia do mês vs. Nível (1-5)</Text>
           </View>
-        </View>
-      </Modal>
+
+          {/* --- LISTA DE EXAMES RECENTES --- */}
+          <View style={styles.sectionCard}>
+            <View style={styles.sectionHeader}>
+              <Icon name="file-text" size={18} color="#2D1E72" />
+              <Text style={styles.sectionTitle}>Resultados Recentes</Text>
+            </View>
+
+            {dados.examesRecentes.length === 0 ? (
+               <View style={styles.emptyState}>
+                 <Text style={styles.emptyStateText}>Nenhum exame realizado em {nomeMesAtual}.</Text>
+               </View>
+            ) : (
+              dados.examesRecentes.map((exame, index) => (
+                <View key={index} style={styles.resultItem}>
+                  <View style={styles.resultInfo}>
+                    <Text style={styles.resultTitle}>{exame.titulo || "Exame sem nome"}</Text>
+                    <Text style={styles.resultDate}>Realizado em {nomeMesAtual}</Text>
+                  </View>
+                  <View style={styles.resultBadge}>
+                    <Text style={styles.resultBadgeText}>{exame.resultado || "Pendente"}</Text>
+                  </View>
+                </View>
+              ))
+            )}
+          </View>
+
+          <View style={{height: 30}} />
+        </ScrollView>
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#F4F3FA" },
+  container: {
+    flex: 1,
+    backgroundColor: "#F5F6FA", 
+  },
   header: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    paddingTop: Platform.OS === "ios" ? 50 : 20,
-    paddingBottom: 18,
-    backgroundColor: "transparent",
-    top: 20,
+    paddingTop: Platform.OS === "ios" ? 60 : 40,
+    paddingHorizontal: 24,
+    paddingBottom: 20,
+    backgroundColor: "#fff",
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
   },
-  headerLeft: { width: 36 },
+  backButton: {
+    marginRight: 16,
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#F5F6FA'
+  },
+  headerSubtitle: {
+    fontSize: 14,
+    color: "#888",
+    fontWeight: "500",
+  },
   headerTitle: {
-    flex: 1,
-    textAlign: "center",
-    fontSize: 20,
-    fontWeight: "700",
+    fontSize: 22,
+    fontWeight: "800",
     color: "#2D1E72",
   },
-  headerRight: { width: 36 },
-
-  searchRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 18,
-    marginTop: 25,
-  },
-  searchInputBox: {
+  loadingContainer: {
     flex: 1,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    shadowColor: "#000",
-    shadowOpacity: 0.03,
-    shadowRadius: 6,
-    elevation: 2,
+    justifyContent: 'center',
+    alignItems: 'center'
   },
-  searchInput: {
+  loadingText: {
+    marginTop: 12,
+    color: '#888',
+    fontSize: 14
+  },
+  scrollContent: {
+    padding: 24,
+  },
+  
+  /* GRID DE STATS */
+  statsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+  },
+  statCard: {
     flex: 1,
-    marginLeft: 8,
-    fontSize: 14,
-    color: "#333",
-    padding: 0,
-  },
-  filterButton: {
-    marginLeft: 12,
-    backgroundColor: "#2D1E72",
-    padding: 12,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    minWidth: 44,
-  },
-
-  lista: { paddingHorizontal: 18, paddingTop: 18, paddingBottom: 60 },
-  card: {
-    backgroundColor: "#fff",
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    shadowColor: "#4B3D8C",
-    shadowOpacity: 0.02,
-    shadowRadius: 8,
-    elevation: 1,
-    borderWidth: 1,
-    borderColor: "transparent",
-  },
-  cardActive: {
-    borderColor: "#E6E0FF",
-    backgroundColor: "#fff",
-  },
-  cardTitulo: { fontSize: 16, fontWeight: "700", color: "#2D1E72" },
-  cardTexto: { color: "#7C7A8F", marginTop: 4 },
-
-  modalContainer: { flex: 1, backgroundColor: "#fff" },
-  headerModal: {
-    backgroundColor: "#2D1E72",
-    paddingTop: Platform.OS === "ios" ? 50 : 24,
-    paddingBottom: 18,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  headerModalTitle: { flex: 1, textAlign: "center", color: "#fff", fontWeight: "700", fontSize: 16 },
-
-  sectionTitle: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: "#2D1E72",
-    marginBottom: 10,
-  },
-  box: {
-    backgroundColor: "#F8F8FB",
-    padding: 14,
-    borderRadius: 10,
-    marginBottom: 14,
-  },
-  boxTitle: { fontSize: 14, fontWeight: "700", marginBottom: 6, color: "#2D1E72" },
-  boxText: { color: "#444" },
-  boxLine: { color: "#444", marginBottom: 4 },
-  fakeChart: {
-    marginTop: 10,
+    backgroundColor: '#fff',
+    borderRadius: 20,
     padding: 20,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#E9E6F8",
+    alignItems: 'flex-start',
+    shadowColor: "#2D1E72",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  iconCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  statNumber: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  statLabel: {
+    fontSize: 14,
+    color: '#888',
+    marginTop: 4,
+  },
+
+  /* SECTIONS (Gráfico e Lista) */
+  sectionCard: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#2D1E72',
+    marginLeft: 8,
+  },
+  chartStyle: {
+    marginVertical: 8,
+    borderRadius: 16,
+  },
+  chartHelper: {
+    textAlign: 'center',
+    fontSize: 10,
+    color: '#AAA',
+    marginTop: 5,
+  },
+  
+  /* LISTA DE RESULTADOS */
+  resultItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  resultInfo: {
+    flex: 1,
+  },
+  resultTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#333',
+  },
+  resultDate: {
+    fontSize: 12,
+    color: '#999',
+    marginTop: 2,
+  },
+  resultBadge: {
+    backgroundColor: '#F3F0FF',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     borderRadius: 8,
   },
-
-  /* Date picker */
-  datePickerOverlay: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
-    alignItems: "center",
+  resultBadgeText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#2D1E72',
+  },
+  emptyState: {
     padding: 20,
+    alignItems: 'center',
   },
-  datePickerCard: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    padding: 18,
-  },
-  pickerLabel: { fontWeight: "700", color: "#2D1E72", marginBottom: 12 },
-  pickerRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  chevBtn: { padding: 8 },
-  pickerColumn: { flex: 1, alignItems: "center" },
-  pickerMonthRow: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 12 },
-  monthText: { marginHorizontal: 18, fontSize: 16, fontWeight: "700", color: "#2D1E72" },
-  yearText: { marginTop: 6, color: "#6C6B80", fontWeight: "600" },
-  pickerActions: { flexDirection: "row", justifyContent: "flex-end", marginTop: 16 },
-  pickerCancel: { padding: 10, marginRight: 10 },
-  pickerOk: { backgroundColor: "#2D1E72", paddingVertical: 10, paddingHorizontal: 18, borderRadius: 8 },
+  emptyStateText: {
+    color: '#AAA',
+    fontStyle: 'italic',
+  }
 });
